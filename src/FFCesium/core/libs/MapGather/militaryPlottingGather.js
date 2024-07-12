@@ -29,7 +29,7 @@ export const militaryPlottingGather = {
   addMilitaryPlotting(cartesianPoints, option, type) {
     let the = this;
     let dynamicHierarchy = null;
-    if (type == "straightArrow") {
+    if (type == "FFStraightArrowEntity") {
       dynamicHierarchy = new Cesium.CallbackProperty(function () {
         if (cartesianPoints.length > 1) {
           var p1 = cartesianPoints[0];
@@ -50,7 +50,7 @@ export const militaryPlottingGather = {
           return null;
         }
       }, false);
-    } else if (type == "tailedAttackArrow") {
+    } else if (type == "FFTailedAttackArrowEntity") {
       dynamicHierarchy = new Cesium.CallbackProperty(function () {
         if (cartesianPoints.length > 1) {
           var lonLats = the.cartesian3ArrToLngLatHeightArr(cartesianPoints);
@@ -66,7 +66,7 @@ export const militaryPlottingGather = {
           return null;
         }
       }, false);
-    } else if (type == "doubleArrow") {
+    } else if (type == "FFDoubleArrowEntity") {
       dynamicHierarchy = new Cesium.CallbackProperty(function () {
         if (cartesianPoints.length > 2) {
           var lonLats = the.cartesian3ArrToLngLatHeightArr(cartesianPoints);
@@ -86,7 +86,7 @@ export const militaryPlottingGather = {
           return null;
         }
       }, false);
-    } else if (type == "rendezvous") {
+    } else if (type == "FFRendezvousEntity") {
       dynamicHierarchy = new Cesium.CallbackProperty(function () {
         var length = cartesianPoints.length;
         if (length < 3) {
@@ -172,7 +172,7 @@ export const militaryPlottingGather = {
         gatherEntity = the.addMilitaryPlotting(
           cartesianPoints,
           option,
-          "rendezvous"
+          "FFRendezvousEntity"
         );
       }
       floatingPoint.position.setValue(cartesian);
@@ -197,7 +197,7 @@ export const militaryPlottingGather = {
           the.cartesian3ArrToLngLatHeightArr(cartesianPoints);
         //结束处理
         the.endMilitaryPlottingGatherDeal();
-        the.setAttributeForEntity(gatherEntity, option, "rendezvous");
+        the.setAttributeForEntity(gatherEntity, option, "FFRendezvousEntity");
         callback(gatherEntity);
       }
     }, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
@@ -241,7 +241,7 @@ export const militaryPlottingGather = {
         gatherEntity = the.addMilitaryPlotting(
           cartesianPoints,
           option,
-          "doubleArrow"
+          "FFDoubleArrowEntity"
         );
       }
       cartesianPoints.push(cartesian);
@@ -258,7 +258,7 @@ export const militaryPlottingGather = {
           the.cartesian3ArrToLngLatHeightArr(cartesianPoints);
         //结束处理
         the.endMilitaryPlottingGatherDeal();
-        the.setAttributeForEntity(gatherEntity, option, "doubleArrow");
+        the.setAttributeForEntity(gatherEntity, option, "FFDoubleArrowEntity");
         callback(gatherEntity);
       }
     }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
@@ -323,7 +323,7 @@ export const militaryPlottingGather = {
         gatherEntity = the.addMilitaryPlotting(
           cartesianPoints,
           option,
-          "tailedAttackArrow"
+          "FFTailedAttackArrowEntity"
         );
       }
       cartesianPoints.push(cartesian);
@@ -342,7 +342,11 @@ export const militaryPlottingGather = {
         the.cartesian3ArrToLngLatHeightArr(cartesianPoints);
       //结束处理
       the.endMilitaryPlottingGatherDeal();
-      the.setAttributeForEntity(gatherEntity, option, "tailedAttackArrow");
+      the.setAttributeForEntity(
+        gatherEntity,
+        option,
+        "FFTailedAttackArrowEntity"
+      );
       callback(gatherEntity);
     }, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
 
@@ -403,7 +407,7 @@ export const militaryPlottingGather = {
         gatherEntity = the.addMilitaryPlotting(
           cartesianPoints,
           option,
-          "straightArrow"
+          "FFStraightArrowEntity"
         );
         cartesianPoints.push(cartesian);
         var oid = cartesianPoints.length - 2;
@@ -430,7 +434,11 @@ export const militaryPlottingGather = {
           the.cartesian3ArrToLngLatHeightArr(cartesianPoints);
         //结束处理
         the.endMilitaryPlottingGatherDeal();
-        the.setAttributeForEntity(gatherEntity, option, "straightArrow");
+        the.setAttributeForEntity(
+          gatherEntity,
+          option,
+          "FFStraightArrowEntity"
+        );
         callback(gatherEntity);
       }
     }, Cesium.ScreenSpaceEventType.RIGHT_CLICK);

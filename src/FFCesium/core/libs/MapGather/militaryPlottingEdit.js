@@ -169,6 +169,7 @@ export const militaryPlottingEdit = {
    * @param {*} option
    */
   addRendezvousEntity(lnglatArr, option) {
+    let newOption = Object.assign({}, option);
     var res = this.fineGatheringPlace(
       this.LngLatHeightArrToCartesian3Arr(lnglatArr)
     );
@@ -180,10 +181,14 @@ export const militaryPlottingEdit = {
           option.alpha
         ),
         show: true,
+        ...newOption,
       }),
     };
+    if (newOption.id) {
+      bData.id = newOption.id;
+    }
     let rendezvousEntity = this.viewer.entities.add(bData);
-    this.setAttributeForEntity(rendezvousEntity, option, "straightArrow");
+    this.setAttributeForEntity(rendezvousEntity, option, "FFRendezvousEntity");
     rendezvousEntity.FFPlotKeyPoints = lnglatArr;
     return rendezvousEntity;
   },
@@ -340,6 +345,8 @@ export const militaryPlottingEdit = {
    * @returns
    */
   addDoubleArrowEntity(lnglatArr, option) {
+    let newOption = Object.assign({}, option);
+
     var attackObj = xp.algorithm.doubleArrow(lnglatArr);
     console.log("attackObj", attackObj);
     var arrow = attackObj.polygonalPoint;
@@ -354,11 +361,18 @@ export const militaryPlottingEdit = {
         material: Cesium.Color.fromCssColorString(option.color).withAlpha(
           option.alpha
         ),
-        show: true,
+        ...newOption,
       }),
     };
+    if (newOption.id) {
+      bData.id = newOption.id;
+    }
     let doubleArrowEntity = this.viewer.entities.add(bData);
-    this.setAttributeForEntity(doubleArrowEntity, option, "straightArrow");
+    this.setAttributeForEntity(
+      doubleArrowEntity,
+      option,
+      "FFDoubleArrowEntity"
+    );
     //获取直线箭头关键坐标数据
     doubleArrowEntity.FFPlotKeyPoints = lnglatArr;
     return doubleArrowEntity;
@@ -511,6 +525,8 @@ export const militaryPlottingEdit = {
    * @returns
    */
   addTailedAttackArrow(lnglatArr, option) {
+    let newOption = Object.assign({}, option);
+
     var attackObj = xp.algorithm.tailedAttackArrow(lnglatArr);
     var arrow = attackObj.polygonalPoint;
     console.log("attackObj:", attackObj);
@@ -522,9 +538,12 @@ export const militaryPlottingEdit = {
         material: Cesium.Color.fromCssColorString(option.color).withAlpha(
           option.alpha
         ),
-        show: true,
+        ...newOption,
       }),
     };
+    if (newOption.id) {
+      bData.id = newOption.id;
+    }
     let tailedAttackArrowEntity = this.viewer.entities.add(bData);
     var keyPointArr = [];
     for (var i = 0; i < attackObj.controlPoint.length; i++) {
@@ -538,7 +557,7 @@ export const militaryPlottingEdit = {
     this.setAttributeForEntity(
       tailedAttackArrowEntity,
       option,
-      "tailedAttackArrow"
+      "FFTailedAttackArrowEntity"
     );
     //获取直线箭头关键坐标数据
     tailedAttackArrowEntity.FFPlotKeyPoints = lnglatArr;
@@ -552,6 +571,7 @@ export const militaryPlottingEdit = {
    * @returns
    */
   addStraightArrowEntity(lnglatArr, option) {
+    let newOption = Object.assign({}, option);
     var arrow = xp.algorithm.fineArrow(lnglatArr[0], lnglatArr[1]);
     console.log("根据箭头关键点获取箭头数据：", arrow);
     var pHierarchy = new Cesium.PolygonHierarchy(arrow);
@@ -561,11 +581,18 @@ export const militaryPlottingEdit = {
         material: Cesium.Color.fromCssColorString(option.color).withAlpha(
           option.alpha
         ),
-        show: true,
+        ...newOption,
       }),
     };
+    if (newOption.id) {
+      bData.id = newOption.id;
+    }
     let straightArrowEntity = this.viewer.entities.add(bData);
-    this.setAttributeForEntity(straightArrowEntity, option, "straightArrow");
+    this.setAttributeForEntity(
+      straightArrowEntity,
+      option,
+      "FFStraightArrowEntity"
+    );
     //获取直线箭头关键坐标数据
     straightArrowEntity.FFPlotKeyPoints = lnglatArr;
     return straightArrowEntity;
