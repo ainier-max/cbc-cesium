@@ -147,4 +147,10 @@ export const addOtherElementMenuConfigs = [
     url: "./FFCesiumExample/MapOperate/addOtherElement/addHtml.vue",
     img: "./images/menu/addGeode.png",
   },
+  {
+    title: "叠加贴地文字",
+    key: "addGroundLabel",
+    url: "./FFCesiumExample/MapOperate/addOtherElement/addGroundLabel.vue",
+    img: "./images/menu/addGeode.png",
+  },
 ];
