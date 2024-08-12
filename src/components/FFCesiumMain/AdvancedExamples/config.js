@@ -12,4 +12,10 @@ export const advancedExamplesMenuConfigs = [
     url: "./FFCesiumExample/AdvancedExamples/addType/showMapByAreaLngLat.vue",
     img: "./images/menu/addGeode.png",
   },
+  {
+    title: "旋转工具",
+    key: "openRotateTool",
+    url: "./FFCesiumExample/AdvancedExamples/openRotateTool/openRotateTool.vue",
+    img: "./images/menu/addGeode.png",
+  },
 ];
