@@ -17,7 +17,7 @@ class FlyRoam {
     this.curState = "stop"; //漫游状态，play,stop,pause
     this.fun = null;
     this.executePoints = []; //记录已经执行回调方法的点
-
+    this.option = null;
     this.heightOffset = 0;
     this.speed = 10;
     this.curPointIndex = 0;
@@ -163,31 +163,38 @@ class FlyRoam {
    * @param {*} count 总插值点数量
    * @param {*} pointArr 坐标集合数组，逗号隔开
    */
-  createFlyLine(type, count, pointArr) {
-    var lon, lat, height;
-    for (let i = 0; i < pointArr.length; ) {
-      lon = pointArr[i];
-      lat = pointArr[i + 1];
-      height = pointArr[i + 2];
-      i += 3;
-
+  //type, count, pointArr,
+  createFlyLine(option) {
+    this.option = option;
+    this.speed = option.speed;
+    for (let i = 0; i < option.lnglatArr.length; i++) {
       //添加途径点到地图上
       var p = this.viewer.entities.add({
         id: this.uuid(8, 32),
-        position: new Cesium.Cartesian3.fromDegrees(lon, lat, height),
+        position: new Cesium.Cartesian3.fromDegrees(
+          option.lnglatArr[i][0],
+          option.lnglatArr[i][1],
+          option.lnglatArr[i][2]
+        ),
         point: {
           pixelSize: 15, //点的大小
           color: Cesium.Color.RED, //点的颜色
           outlineWidth: 2, //边框宽度
           outlineColor: Cesium.Color.WHITE.withAlpha(0.4), //边框颜色
         },
-        show: false,
+        show: this.option.showPointFlag,
       });
 
-      this.tmpPositions.push(Cesium.Cartesian3.fromDegrees(lon, lat, height));
+      this.tmpPositions.push(
+        Cesium.Cartesian3.fromDegrees(
+          option.lnglatArr[i][0],
+          option.lnglatArr[i][1],
+          option.lnglatArr[i][2]
+        )
+      );
       this.points.push(p);
       //进行插值处理
-      this.interpolation(type, count);
+      this.interpolation(option.interpolationType, option.interpolationCount);
     }
   }
 
@@ -480,7 +487,7 @@ class FlyRoam {
             color: Cesium.Color.YELLOW,
             pixelSize: 6,
           },
-          show: false,
+          show: this.option.showPointFlag,
         });
         this.autoPoints.push(p);
       }

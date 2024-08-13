@@ -14,8 +14,14 @@ export const advancedExamplesMenuConfigs = [
   },
   {
     title: "旋转工具",
-    key: "openRotateTool",
-    url: "./FFCesiumExample/AdvancedExamples/openRotateTool/openRotateTool.vue",
+    key: "RotateTool",
+    url: "./FFCesiumExample/senior/RotateTool/RotateTool.vue",
+    img: "./images/menu/addGeode.png",
+  },
+  {
+    title: "飞行漫游",
+    key: "FlyRoam",
+    url: "./FFCesiumExample/senior/FlyRoam/FlyRoam.vue",
     img: "./images/menu/addGeode.png",
   },
 ];

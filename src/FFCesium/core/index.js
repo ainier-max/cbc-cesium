@@ -30,6 +30,7 @@ import { pipe } from "./libs/pipe.js";
 
 //高级示例
 import RotateTool from "../senior/libs/rotateTool/index.js";
+import FlyRoam from "../senior/libs/flyRoam/index.js";
 
 //入口文件
 class FFCesium {
@@ -38,6 +39,7 @@ class FFCesium {
   viewer;
   Cesium;
   RotateTool;
+  FlyRoam;
   constructor(id, option) {
     this.Cesium = Cesium;
     //合并其他文件JS文件方法1231
@@ -92,6 +94,8 @@ class FFCesium {
     this.viewer._cesiumWidget._creditContainer.style.display = "none"; //去除版权信息
     let time3 = new Date().getTime();
     this.rotateTool = new RotateTool(this);
+    this.flyRoam = new FlyRoam(this);
+
     this.addPrimitiveInit();
     console.log("FFCesium构建总耗时（ms）", time3 - time1);
   }
