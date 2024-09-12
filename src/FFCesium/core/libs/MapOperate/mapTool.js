@@ -525,4 +525,16 @@ export const mapTool = {
       this.openMouseTipLabelEntity.label.text = this.openMouseTipLabel;
     }
   },
+
+  /**
+   * 创建贝塞尔曲线
+   * @param {*} latlngArr
+   */
+  createBezierSpline(latlngArr) {
+    var line = turf.lineString(latlngArr);
+    console.log("line", line);
+    var curved = turf.bezierSpline(line, { sharpness: 0.5 });
+    let newLnglatArr = curved.geometry.coordinates;
+    return newLnglatArr;
+  },
 };

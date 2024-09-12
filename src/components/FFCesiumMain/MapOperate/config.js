@@ -65,6 +65,12 @@ export const mapToolMenuConfigs = [
     url: "./FFCesiumExample/MapOperate/mapTool/openMouseTip.vue",
     img: "./images/menu/addGeode.png",
   },
+  {
+    title: "贝塞尔曲线绘制",
+    key: "cartesian3ToLngLat",
+    url: "./FFCesiumExample/MapOperate/mapTool/createBezierSpline.vue",
+    img: "./images/menu/addGeode.png",
+  },
 ];
 
 export const addPrimitiveMenuConfigs = [

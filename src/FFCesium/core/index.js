@@ -31,6 +31,7 @@ import { pipe } from "./libs/pipe.js";
 //高级示例
 import RotateTool from "../senior/libs/rotateTool/index.js";
 import FlyRoam from "../senior/libs/flyRoam/index.js";
+import FlyRoamNew from "../senior/libs/flyRoamNew/index.js";
 
 //入口文件
 class FFCesium {
@@ -39,7 +40,8 @@ class FFCesium {
   viewer;
   Cesium;
   RotateTool;
-  FlyRoam;
+  flyRoam;
+  flyRoamNew;
   constructor(id, option) {
     this.Cesium = Cesium;
     //合并其他文件JS文件方法1231
@@ -73,7 +75,7 @@ class FFCesium {
       //地图通用工具包
       ...mapUtil,
       //其他
-      ...pipe,
+      ...pipe
     });
 
     let time2 = new Date().getTime();
@@ -95,6 +97,7 @@ class FFCesium {
     let time3 = new Date().getTime();
     this.rotateTool = new RotateTool(this);
     this.flyRoam = new FlyRoam(this);
+    this.flyRoamNew = new FlyRoamNew(this);
 
     this.addPrimitiveInit();
     console.log("FFCesium构建总耗时（ms）", time3 - time1);
@@ -114,18 +117,16 @@ class FFCesium {
       navigationHelpButton: false, //是否显示右上角的帮助按钮
       shadows: true, //是否显示背影
       shouldAnimate: true,
-      baseLayer: false,
+      baseLayer: false
     };
     this.viewer = new Cesium.Viewer(this.cesiumID, viewerOption);
     //得加高德标准地图
-    let mapLayer = this.addGaodeLayer(
-      "https://webst04.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z}"
-    );
+    let mapLayer = this.addGaodeLayer("https://webst04.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z}");
     this.setView({
       lng: 118.135,
       lat: 24.339,
       height: 20000,
-      pitchRadiu: -50,
+      pitchRadiu: -50
     });
     return mapLayer;
   }
@@ -139,8 +140,7 @@ class FFCesium {
       var cartesian = the.viewer.scene.globe.pick(ray, the.viewer.scene);
       if (Cesium.defined(cartesian)) {
         // 转换为经纬度
-        const cartographic =
-          the.viewer.scene.globe.ellipsoid.cartesianToCartographic(cartesian);
+        const cartographic = the.viewer.scene.globe.ellipsoid.cartesianToCartographic(cartesian);
         const longitudeString = Cesium.Math.toDegrees(cartographic.longitude);
         const latitudeString = Cesium.Math.toDegrees(cartographic.latitude);
         const height = the.viewer.scene.globe.getHeight(cartographic);

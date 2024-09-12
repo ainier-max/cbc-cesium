@@ -1,4 +1,4 @@
-import * as Cesium from 'cesium';
+import * as Cesium from "cesium";
 
 export const addEntity = {
   /**
@@ -13,7 +13,7 @@ export const addEntity = {
    * @param {*} FFEntityArr
    */
   removeFFEntityArr(FFEntityArr) {
-    FFEntityArr.forEach(element => {
+    FFEntityArr.forEach((element) => {
       this.viewer.entities.remove(element);
     });
   },
@@ -29,7 +29,7 @@ export const addEntity = {
    * @param {*} FFEntityArr
    */
   removeFFEntityIDArr(FFEntityIDArr) {
-    FFEntityIDArr.forEach(element => {
+    FFEntityIDArr.forEach((element) => {
       this.viewer.entities.removeById(element);
     });
   },
@@ -58,7 +58,7 @@ export const addEntity = {
     }
     let circleEntity = this.viewer.entities.add(circleConfig);
     circleEntity.FFOption = option;
-    circleEntity.FFType = 'FFCircleEntity';
+    circleEntity.FFType = "FFCircleEntity";
     circleEntity.FFCenterPoint = centerPoint;
     circleEntity.FFRadius = radius;
     circleEntity.FFPosition = positionTemp;
@@ -91,7 +91,7 @@ export const addEntity = {
     }
     let pointEntity = this.viewer.entities.add(pointConfig);
     pointEntity.FFOption = option;
-    pointEntity.FFType = 'FFPointEntity';
+    pointEntity.FFType = "FFPointEntity";
     pointEntity.FFCoordinates = lngLatHeight;
     pointEntity.FFPosition = positionTemp;
     return pointEntity;
@@ -104,7 +104,7 @@ export const addEntity = {
    */
   addBillboardEntity(lngLatHeight, option) {
     let newOption = Object.assign({}, option);
-    console.log('newOption111', newOption);
+    console.log("newOption111", newOption);
     let positionTemp = null;
     if (option.heightReference) {
       positionTemp = Cesium.Cartesian3.fromDegrees(lngLatHeight[0], lngLatHeight[1]);
@@ -126,7 +126,7 @@ export const addEntity = {
 
     let billboardEntity = this.viewer.entities.add(billboardConfig);
     billboardEntity.FFOption = option;
-    billboardEntity.FFType = 'FFBillboardEntity';
+    billboardEntity.FFType = "FFBillboardEntity";
     billboardEntity.FFCoordinates = lngLatHeight;
     billboardEntity.FFPosition = positionTemp;
     return billboardEntity;
@@ -139,12 +139,7 @@ export const addEntity = {
    */
   addRectangleEntity(coordinates, option) {
     let newOption = Object.assign({}, option);
-    let positionTemp = Cesium.Rectangle.fromDegrees(
-      coordinates.west,
-      coordinates.south,
-      coordinates.east,
-      coordinates.north
-    );
+    let positionTemp = Cesium.Rectangle.fromDegrees(coordinates.west, coordinates.south, coordinates.east, coordinates.north);
 
     let rectangleConfig = {
       rectangle: {
@@ -158,7 +153,7 @@ export const addEntity = {
     }
     let rectangleEntity = this.viewer.entities.add(rectangleConfig);
     rectangleEntity.FFOption = option;
-    rectangleEntity.FFType = 'FFRectangleEntity';
+    rectangleEntity.FFType = "FFRectangleEntity";
     rectangleEntity.FFCoordinates = coordinates;
     rectangleEntity.FFPosition = positionTemp;
     return rectangleEntity;
@@ -190,7 +185,7 @@ export const addEntity = {
     }
     let polygonEntity = this.viewer.entities.add(polygonConfig);
     polygonEntity.FFOption = option;
-    polygonEntity.FFType = 'FFPolygonEntity';
+    polygonEntity.FFType = "FFPolygonEntity";
     polygonEntity.FFCoordinates = lnglatArr;
     polygonEntity.FFPosition = positionTemp;
     return polygonEntity;
@@ -204,8 +199,12 @@ export const addEntity = {
    */
   addPolylineEntity(lngLatHeightArr, option) {
     let newOption = Object.assign({}, option);
-    let positionTemp = Cesium.Cartesian3.fromDegreesArrayHeights(lngLatHeightArr.flat());
-
+    let positionTemp = null;
+    if (lngLatHeightArr.length > 0 && lngLatHeightArr[0].length > 2) {
+      positionTemp = Cesium.Cartesian3.fromDegreesArrayHeights(lngLatHeightArr.flat());
+    } else {
+      positionTemp = Cesium.Cartesian3.fromDegreesArray(lngLatHeightArr.flat());
+    }
     let polylineConfig = {
       polyline: {
         positions: positionTemp,
@@ -219,7 +218,7 @@ export const addEntity = {
 
     let polylineEntity = this.viewer.entities.add(polylineConfig);
     polylineEntity.FFOption = option;
-    polylineEntity.FFType = 'FFPolylineEntity';
+    polylineEntity.FFType = "FFPolylineEntity";
     polylineEntity.FFCoordinates = lngLatHeightArr;
     polylineEntity.FFPosition = positionTemp;
     return polylineEntity;

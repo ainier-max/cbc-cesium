@@ -8,20 +8,14 @@ export const mapUtil = {
    */
   getCenterPosition(ffCesium) {
     let viewer = ffCesium.viewer;
-    let centerResult = viewer.camera.pickEllipsoid(
-      new ffCesium.Cesium.Cartesian2(
-        viewer.canvas.clientWidth / 2,
-        viewer.canvas.clientHeight / 2
-      )
-    );
+    let centerResult = viewer.camera.pickEllipsoid(new ffCesium.Cesium.Cartesian2(viewer.canvas.clientWidth / 2, viewer.canvas.clientHeight / 2));
     if (centerResult) {
-      let curPosition =
-        ffCesium.Cesium.Ellipsoid.WGS84.cartesianToCartographic(centerResult);
+      let curPosition = ffCesium.Cesium.Ellipsoid.WGS84.cartesianToCartographic(centerResult);
       let curLongitude = (curPosition.longitude * 180) / Math.PI;
       let curLatitude = (curPosition.latitude * 180) / Math.PI;
       return {
         lon: curLongitude,
-        lat: curLatitude,
+        lat: curLatitude
       };
     } else {
       return null;
@@ -39,12 +33,7 @@ export const mapUtil = {
     console.log("getHeightAtPoint--cartographics", cartographics);
 
     try {
-      const updatedPositions = await Cesium.sampleTerrain(
-        this.viewer.terrainProvider,
-        11,
-        cartographics,
-        true
-      );
+      const updatedPositions = await Cesium.sampleTerrain(this.viewer.terrainProvider, 11, cartographics, true);
       console.log("updatedPositions23232", updatedPositions);
       let height = updatedPositions[0].height;
       return height;
@@ -85,12 +74,7 @@ export const mapUtil = {
       var line = turf.lineString(option.LngLatArr);
       returnLength = turf.length(line, { units: "kilometers" }) * 1000;
     } else if (option.type == "rectangle") {
-      let LngLatArr = this.rectangleCoordinateToPolygonCoordinate(
-        option.LngLat.east,
-        option.LngLat.west,
-        option.LngLat.south,
-        option.LngLat.north
-      );
+      let LngLatArr = this.rectangleCoordinateToPolygonCoordinate(option.LngLat.east, option.LngLat.west, option.LngLat.south, option.LngLat.north);
       var line = turf.lineString(LngLatArr);
       returnLength = turf.length(line, { units: "kilometers" }) * 1000;
     } else if (option.type == "circle") {
@@ -117,21 +101,13 @@ export const mapUtil = {
     if (option.type == "polygon") {
       let LngLatArr = option.LngLatArr;
       let lastIndex = LngLatArr.length - 1;
-      if (
-        LngLatArr[0][0] != LngLatArr[lastIndex][0] &&
-        LngLatArr[0][1] !== LngLatArr[lastIndex][1]
-      ) {
+      if (LngLatArr[0][0] != LngLatArr[lastIndex][0] && LngLatArr[0][1] !== LngLatArr[lastIndex][1]) {
         LngLatArr.push(LngLatArr[0]);
       }
       var polygon = turf.polygon([LngLatArr]);
       area = turf.area(polygon);
     } else if (option.type == "rectangle") {
-      let LngLatArr = this.rectangleCoordinateToPolygonCoordinate(
-        option.LngLat.east,
-        option.LngLat.west,
-        option.LngLat.south,
-        option.LngLat.north
-      );
+      let LngLatArr = this.rectangleCoordinateToPolygonCoordinate(option.LngLat.east, option.LngLat.west, option.LngLat.south, option.LngLat.north);
       var polygon = turf.polygon([LngLatArr]);
       area = turf.area(polygon);
     } else if (option.type == "circle") {
@@ -195,10 +171,7 @@ export const mapUtil = {
   getCenterPointFromLngLatArr(LngLatArr) {
     console.log("LngLatArr", LngLatArr);
     let lastIndex = LngLatArr.length - 1;
-    if (
-      LngLatArr[0][0] != LngLatArr[lastIndex][0] &&
-      LngLatArr[0][1] !== LngLatArr[lastIndex][1]
-    ) {
+    if (LngLatArr[0][0] != LngLatArr[lastIndex][0] && LngLatArr[0][1] !== LngLatArr[lastIndex][1]) {
       LngLatArr.push(LngLatArr[0]);
     }
 
@@ -237,11 +210,7 @@ export const mapUtil = {
     var lngLatHeightArr = [];
     for (var i = 0; i < cartesian3Arr.length; i++) {
       var ellipsoid = this.viewer.scene.globe.ellipsoid;
-      var cartesian3 = new Cesium.Cartesian3(
-        cartesian3Arr[i].x,
-        cartesian3Arr[i].y,
-        cartesian3Arr[i].z
-      );
+      var cartesian3 = new Cesium.Cartesian3(cartesian3Arr[i].x, cartesian3Arr[i].y, cartesian3Arr[i].z);
       var cartographic = ellipsoid.cartesianToCartographic(cartesian3);
       var arr = [];
       arr.push(Cesium.Math.toDegrees(cartographic.longitude));
@@ -264,11 +233,7 @@ export const mapUtil = {
       if (!item[2]) {
         item[2] = 0;
       }
-      let cartesian3Temp = Cesium.Cartesian3.fromDegrees(
-        item[0],
-        item[1],
-        item[2]
-      );
+      let cartesian3Temp = Cesium.Cartesian3.fromDegrees(item[0], item[1], item[2]);
       cartesian3Arr.push(cartesian3Temp);
     });
     return cartesian3Arr;
@@ -380,12 +345,7 @@ export const mapUtil = {
       entity.FFPosition = positionTemp;
     }
 
-    if (
-      type == "FFStraightArrowEntity" ||
-      type == "FFTailedAttackArrowEntity" ||
-      type == "FFDoubleArrowEntity" ||
-      type == "FFRendezvousEntity"
-    ) {
+    if (type == "FFStraightArrowEntity" || type == "FFTailedAttackArrowEntity" || type == "FFDoubleArrowEntity" || type == "FFRendezvousEntity") {
       let positionsTemp = entity.polygon.hierarchy.getValue().positions;
       let FFCoordinates = this.cartesian3ArrToLngLatHeightArr(positionsTemp);
       entity.FFType = type;
@@ -393,5 +353,5 @@ export const mapUtil = {
       entity.FFCoordinates = FFCoordinates;
       entity.FFPosition = positionsTemp;
     }
-  },
+  }
 };
