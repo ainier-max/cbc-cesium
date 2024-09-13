@@ -1,7 +1,9 @@
 <template>
   <div id="cesiumContainer">
     <button style="position: absolute; left: 100px; top: 100px; z-index: 999" @click="FlyRoam">开始漫游</button>
-    <button style="position: absolute; left: 100px; top: 150px; z-index: 999" @click="stopFly">停止漫游</button>
+    <button style="position: absolute; left: 100px; top: 150px; z-index: 999" @click="pauseFly">暂停漫游</button>
+    <button style="position: absolute; left: 100px; top: 200px; z-index: 999" @click="continueFly">继续漫游</button>
+    <button style="position: absolute; left: 100px; top: 250px; z-index: 999" @click="stopFly">停止漫游</button>
   </div>
 </template>
 <script lang="ts" setup>
@@ -81,15 +83,23 @@
     };
     let polylineEntity = ffCesium.addPolylineEntity(lnglatArr, option);
   });
+
   const FlyRoam = () => {
     let option = {
       showPoint: true,
-      speed: 10,
+      speed: 1,
       pitch: -20,
       rangeHeight: 1700
     };
     ffCesium.flyRoamNew.startFly(lnglatArr, option);
   };
+  const pauseFly = () => {
+    ffCesium.flyRoamNew.pauseFly();
+  };
+  const continueFly = () => {
+    ffCesium.flyRoamNew.continueFly();
+  };
+
   const stopFly = () => {
     ffCesium.flyRoamNew.stopFly();
   };

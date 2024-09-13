@@ -6,12 +6,14 @@ import * as turf from "@turf/turf";
 class FlyRoamNew {
   ffCesium;
   oldBearingArr = [];
+  currentBearing = 0;
   turnFlag = false;
   turnArr = [];
   turnIndex = 0;
   turnCount = 0;
   option;
   FlyRoamPoint = null;
+  pauseFlag = false;
 
   constructor(ffCesium) {
     this.ffCesium = ffCesium;
@@ -21,6 +23,19 @@ class FlyRoamNew {
     let bearing = turf.bearing(turf.point(lnglat1), turf.point(lnglat2)).toFixed(0);
     console.log("角度bearing", bearing);
   }
+  pauseFly() {
+    this.pauseFlag = true;
+  }
+  continueFly() {
+    this.pauseFlag = false;
+  }
+
+  stopFly() {
+    this.ffCesium.viewer.entities.remove(this.FlyRoamPoint);
+    this.FlyRoamPoint = null;
+    this.pauseFlag = false;
+  }
+
   startFly(lngLatHeightArr, option) {
     this.option = option;
     let the = this;
@@ -40,24 +55,25 @@ class FlyRoamNew {
     }
     this.FlyRoamPoint = viewer.entities.add({
       position: new Cesium.CallbackProperty(function () {
-        indexFlag = indexFlag + the.option.speed;
+        //暂停漫游与继续漫游
+        if (!the.pauseFlag) {
+          indexFlag = indexFlag + the.option.speed;
+        }
+
         if (indexFlag >= chunk.features.length) {
           indexFlag = chunk.features.length - 1;
         }
-        // if (indexFlag < chunk.features.length - 1) {
-        //   indexFlag = indexFlag + speed;
-        // } else {
-        //   indexFlag = indexFlag;
-        // }
-        const chunkLng = chunk.features[indexFlag].geometry.coordinates[0][0];
-        const chunkLat = chunk.features[indexFlag].geometry.coordinates[0][1];
+        const chunkLng = chunk.features[indexFlag].geometry.coordinates[1][0];
+        const chunkLat = chunk.features[indexFlag].geometry.coordinates[1][1];
         var cartesian = Cesium.Cartesian3.fromDegrees(chunkLng, chunkLat, 5);
         let startPoint = [chunkLng, chunkLat];
         if (indexFlag < chunk.features.length - 1) {
-          let nextChunkLng = chunk.features[indexFlag + 1].geometry.coordinates[0][0];
-          let nextChunkLat = chunk.features[indexFlag + 1].geometry.coordinates[0][1];
+          let nextChunkLng = chunk.features[indexFlag + 1].geometry.coordinates[1][0];
+          let nextChunkLat = chunk.features[indexFlag + 1].geometry.coordinates[1][1];
           let endPoint = [nextChunkLng, nextChunkLat];
-          the.setViewTempNew(startPoint, endPoint);
+          if (!the.pauseFlag) {
+            the.setViewTempNew(startPoint, endPoint);
+          }
         } else {
         }
         return cartesian;
@@ -73,20 +89,16 @@ class FlyRoamNew {
   setViewTempNew(startPoint, endPoint) {
     let viewer = this.ffCesium.viewer;
     // 使用Turf.js的bearing方法获取角度
-
     let bearing = turf.bearing(turf.point(startPoint), turf.point(endPoint)).toFixed(0);
     // console.log("bearing", bearing);
-    // console.log("this.oldBearingArr", this.oldBearingArr);
+    //console.log("this.oldBearingArr", this.oldBearingArr);
     if (this.oldBearingArr.length == 0) {
       this.oldBearingArr.push(Number(bearing));
     }
     if (this.oldBearingArr[0]) {
       if (this.oldBearingArr[0] != bearing) {
         this.turnFlag = true;
-        console.log("this.oldBearingArr", this.oldBearingArr);
-        console.log("转向");
         console.log("旧角度", this.oldBearingArr[0]);
-        console.log("startPoint, endPoint", startPoint, endPoint);
         console.log("新角度", bearing);
         const radiansToDegrees = (radians) => {
           return radians * (180 / Math.PI);
@@ -100,7 +112,7 @@ class FlyRoamNew {
           return difference - 2 * Math.PI * times;
         };
 
-        var smallestDifference = getSmallestAngleDifference(degreesToRadians(this.oldBearingArr[0]), degreesToRadians(bearing)); // radians
+        var smallestDifference = getSmallestAngleDifference(degreesToRadians(this.currentBearing), degreesToRadians(bearing)); // radians
         let chazhi = Math.ceil(radiansToDegrees(smallestDifference));
 
         //角度相差不大，不进行转向
@@ -110,19 +122,18 @@ class FlyRoamNew {
           this.turnFlag = false;
           bearing = this.oldBearingArr[0];
         }
-        //let chazhi = this.oldBearingArr[0] - bearing;
-        this.turnCount = Math.abs(chazhi / 0.2).toFixed(0);
-        if (this.turnCount > 50) {
-          this.turnCount = 50;
-        }
+
+        console.log("插值", chazhi);
+        this.turnCount = Math.abs(chazhi / 0.5).toFixed(0);
+        // if (this.turnCount > 50) {
+        //   this.turnCount = 50;
+        // }
         let junzhi = chazhi / this.turnCount;
         this.turnArr = [];
         for (let i = 0; i < this.turnCount; i++) {
-          this.turnArr.push(this.oldBearingArr[0] + junzhi * (i + 1));
+          this.turnArr.push(Number(this.currentBearing) + junzhi * (i + 1));
         }
-        //if (junzhi > 5) {
         console.log("this.turnAr123r", this.turnArr);
-        //}
         this.oldBearingArr[0] = Number(bearing);
       }
     }
@@ -130,15 +141,17 @@ class FlyRoamNew {
     //平稳旋转
     if (this.turnFlag == true) {
       bearing = this.turnArr[this.turnIndex];
-      this.turnIndex = this.turnIndex + this.option.speed;
+      //this.turnIndex = this.turnIndex + this.option.speed;
+      this.turnIndex = this.turnIndex + 1;
       if (this.turnIndex >= this.turnCount) {
         this.turnFlag = false;
         this.turnIndex = 0;
         this.turnArr = [];
       }
     }
-    console.log("bearing123123", bearing);
+    //console.log("bearing123123", bearing);
     if (bearing) {
+      this.currentBearing = bearing;
       let position = Cesium.Cartesian3.fromDegrees(startPoint[0], startPoint[1], 10);
       viewer.camera.setView({
         destination: position,
@@ -152,10 +165,6 @@ class FlyRoamNew {
       });
       viewer.scene.camera.moveBackward(this.option.rangeHeight);
     }
-  }
-
-  stopFly() {
-    console.log("停止飞行");
   }
 }
 export default FlyRoamNew;
