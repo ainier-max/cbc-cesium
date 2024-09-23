@@ -3,10 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <title>Historic Topographic Maps</title>
-    <meta
-      name="viewport"
-      content="initial-scale=1,maximum-scale=1,user-scalable=no"
-    />
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
 
     <!-- Load Leaflet from CDN -->
     <link rel="stylesheet" href="lib/leaflet/leaflet.css" />
@@ -64,13 +61,7 @@
       "
     />
 
-    <textarea
-      id="zbcValue"
-      rows="10"
-      cols="50"
-      style="position: absolute; left: 100px; top: 150px; z-index: 9999"
-    >
-    </textarea>
+    <textarea id="zbcValue" rows="10" cols="50" style="position: absolute; left: 100px; top: 150px; z-index: 9999"> </textarea>
 
     <input
       type="button"
@@ -92,19 +83,18 @@
 
     <script>
       var map = L.map("map");
-      new L.TileLayer(
-        "https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
-        {
-          maxZoom: 20,
-          minZoom: 1,
-          attribution: "ⓒ 2012 Daum",
-        }
-      ).addTo(map);
+      //https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}
+      //http://webrd04.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}
+      new L.TileLayer("http://webrd04.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}", {
+        maxZoom: 20,
+        minZoom: 1,
+        attribution: "ⓒ 2012 Daum"
+      }).addTo(map);
       [
         [129.76020812988284, 46.72032856077598],
         [129.74063873291018, 46.70031853924921],
         [129.8178863525391, 46.68501175243325],
-        [129.8123931884766, 46.67252762304416],
+        [129.8123931884766, 46.67252762304416]
       ];
       var center_point = [46.69356299125383, 129.7803279318912];
       map.setView(center_point, 12);
@@ -150,7 +140,7 @@
           color: "yellow",
           weight: 3,
           opacity: 1,
-          smoothFactor: 1,
+          smoothFactor: 1
         });
         gatherPolylineObj.addTo(map);
         gatherPolylineObj.editing.enable();

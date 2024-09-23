@@ -3,7 +3,7 @@ export const mapSeniorMenuConfigs = [
   {
     title: "线采集工具",
     key: "polylineGatherTool",
-    url: "./MapSenior/gatherTools/map/gatherPolyline.html",
+    url: "/MapSenior/polylineGatherTool/map/gatherPolyline.html",
     type: "HTML",
     img: "./images/menu/addGeode.png"
   },
