@@ -147,7 +147,7 @@
 
     const lnglatObj = getCenterLatLon();
     console.log("lnglatObj", lnglatObj);
-    let heightTemp = await getHeightAtPoint([lnglatObj.lon, lnglatObj.lat]);
+    let heightTemp = await getHeightAtPoint([lnglatObj.lon, lnglatObj.lat], 15);
     console.log("heightTemp", heightTemp);
     heightTemp = heightTemp + 50;
 
@@ -203,12 +203,12 @@
    * @param {*} LngLat
    * @returns
    */
-  const getHeightAtPoint = async (LngLat) => {
+  const getHeightAtPoint = async (LngLat, level) => {
     let cartographics = [Cesium.Cartographic.fromDegrees(LngLat[0], LngLat[1])];
     console.log("getHeightAtPoint--cartographics", cartographics);
 
     try {
-      const updatedPositions = await Cesium.sampleTerrain(viewer.terrainProvider, 15, cartographics, true);
+      const updatedPositions = await Cesium.sampleTerrain(viewer.terrainProvider, level, cartographics, true);
       console.log("updatedPositions23232", updatedPositions);
       let height = updatedPositions[0].height;
       return height;

@@ -52,6 +52,11 @@
                 <i class="el-icon-date"></i>
                 <span style="font-size: 16px">应用场景</span>
               </el-menu-item>
+
+              <el-menu-item index="8">
+                <i class="el-icon-date"></i>
+                <span style="font-size: 16px">平台手册</span>
+              </el-menu-item>
             </el-menu>
           </div>
         </el-aside>
@@ -86,7 +91,9 @@
   } else if (router.currentRoute.value.path == "/ffCesiumMain/AdvancedExamples") {
     activeIndex.value = "6";
   } else if (router.currentRoute.value.path == "/ffCesiumMain/MapSenior") {
-    activeIndex.value = "6";
+    activeIndex.value = "7";
+  } else if (router.currentRoute.value.path == "/ffCesiumMain/Md") {
+    activeIndex.value = "8";
   }
 
   console.log("activeIndex", activeIndex);
@@ -112,6 +119,14 @@
     }
     if (key == "7") {
       router.push({ name: "MapSenior" });
+    }
+    if (key == "8") {
+      router.push({ name: "Md" });
+      // const { href } = router.resolve({
+      //   path: "/Md"
+      // });
+      // window.open(href, "_blank");
+      // router.push({ name: "Md" });
     }
   };
   const handleOpen = (key, keyPath) => {};

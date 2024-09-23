@@ -13,10 +13,7 @@ export const mapUtil = {
       let curPosition = ffCesium.Cesium.Ellipsoid.WGS84.cartesianToCartographic(centerResult);
       let curLongitude = (curPosition.longitude * 180) / Math.PI;
       let curLatitude = (curPosition.latitude * 180) / Math.PI;
-      return {
-        lon: curLongitude,
-        lat: curLatitude
-      };
+      return [curLongitude, curLatitude];
     } else {
       return null;
     }
@@ -28,12 +25,12 @@ export const mapUtil = {
    * @param {*} LngLat
    * @returns
    */
-  async getHeightAtPoint(LngLat) {
+  async getHeightAtPoint(LngLat, level) {
     let cartographics = [Cesium.Cartographic.fromDegrees(LngLat[0], LngLat[1])];
     console.log("getHeightAtPoint--cartographics", cartographics);
 
     try {
-      const updatedPositions = await Cesium.sampleTerrain(this.viewer.terrainProvider, 11, cartographics, true);
+      const updatedPositions = await Cesium.sampleTerrain(this.viewer.terrainProvider, level, cartographics, true);
       console.log("updatedPositions23232", updatedPositions);
       let height = updatedPositions[0].height;
       return height;
@@ -181,23 +178,6 @@ export const mapUtil = {
     // 输出中心点的坐标
     return centerPoint.geometry.coordinates;
   },
-  /**
-   * 坐标高度数组 转换 坐标数组
-   * 输入：[[118.11,24.11,0],[118.11,24.11,0],[118.11,24.11,0],[118.11,24.11,0]]
-   * 输出：[[118.11,24.11],[118.11,24.11],[118.11,24.11],[118.11,24.11]]
-   * @param {*} LngLatHeightArr
-   * @returns
-   */
-  getLngLatArrFromLngLatHeightArr(LngLatHeightArr) {
-    let lngLatArr = [];
-    LngLatHeightArr.forEach((element) => {
-      let arrTemp = [];
-      arrTemp.push(element[0]);
-      arrTemp.push(element[1]);
-      lngLatArr.push(arrTemp);
-    });
-    return lngLatArr;
-  },
 
   /**
    * 世界坐标数组转换坐标数组
@@ -227,7 +207,7 @@ export const mapUtil = {
    * @param {*} positions
    * @returns
    */
-  LngLatHeightArrToCartesian3Arr(lngLatHeightArr) {
+  lngLatHeightArrToCartesian3Arr(lngLatHeightArr) {
     let cartesian3Arr = [];
     lngLatHeightArr.forEach((item) => {
       if (!item[2]) {

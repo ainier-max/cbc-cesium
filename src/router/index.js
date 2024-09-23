@@ -20,6 +20,7 @@ const routes = [
     path: "/iframe",
     component: () => import("@/components/common/MapCode/iframe.vue")
   },
+
   {
     path: "/ffCesiumMain",
     component: () => import("@/components/FFCesiumMain/index.vue"),
@@ -58,6 +59,11 @@ const routes = [
         name: "MapSenior",
         path: "MapSenior",
         component: () => import("@/components/FFCesiumMain/MapSenior/index.vue")
+      },
+      {
+        name: "Md",
+        path: "Md",
+        component: () => import("@/components/FFCesiumMain/Md/index.vue")
       }
     ]
   },
