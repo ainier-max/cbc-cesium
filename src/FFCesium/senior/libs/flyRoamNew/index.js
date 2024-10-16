@@ -62,6 +62,8 @@ class FlyRoamNew {
 
         if (indexFlag >= chunk.features.length) {
           indexFlag = chunk.features.length - 1;
+          option.endFlyRoamCallBack();
+          the.stopFly();
         }
         const chunkLng = chunk.features[indexFlag].geometry.coordinates[1][0];
         const chunkLat = chunk.features[indexFlag].geometry.coordinates[1][1];
@@ -98,8 +100,8 @@ class FlyRoamNew {
     if (this.oldBearingArr[0]) {
       if (this.oldBearingArr[0] != bearing) {
         this.turnFlag = true;
-        console.log("旧角度", this.oldBearingArr[0]);
-        console.log("新角度", bearing);
+        //console.log("旧角度", this.oldBearingArr[0]);
+        //console.log("新角度", bearing);
         const radiansToDegrees = (radians) => {
           return radians * (180 / Math.PI);
         };
@@ -117,13 +119,13 @@ class FlyRoamNew {
 
         //角度相差不大，不进行转向
         if (Math.abs(chazhi) < 5) {
-          console.log("相差较近的角度123", Math.ceil(radiansToDegrees(smallestDifference)));
+          //console.log("相差较近的角度123", Math.ceil(radiansToDegrees(smallestDifference)));
           chazhi = 0;
           this.turnFlag = false;
           bearing = this.oldBearingArr[0];
         }
 
-        console.log("插值", chazhi);
+        //console.log("插值", chazhi);
         this.turnCount = Math.abs(chazhi / 0.5).toFixed(0);
         // if (this.turnCount > 50) {
         //   this.turnCount = 50;
@@ -133,7 +135,7 @@ class FlyRoamNew {
         for (let i = 0; i < this.turnCount; i++) {
           this.turnArr.push(Number(this.currentBearing) + junzhi * (i + 1));
         }
-        console.log("this.turnAr123r", this.turnArr);
+        //console.log("this.turnAr123r", this.turnArr);
         this.oldBearingArr[0] = Number(bearing);
       }
     }

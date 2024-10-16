@@ -76,6 +76,7 @@
       pitchRadiu: -50
     });
     console.log("ffCesium", ffCesium);
+
     let option = {
       width: 1,
       color: "#FFFF00",
@@ -84,12 +85,28 @@
     let polylineEntity = ffCesium.addPolylineEntity(lnglatArr, option);
   });
 
+  let flyRoamIntervalTimer = null;
+  const endFlyRoamCallBack = () => {
+    console.log("结束漫游回调");
+    if (flyRoamIntervalTimer) {
+      window.clearInterval(flyRoamIntervalTimer);
+      flyRoamIntervalTimer = null;
+    }
+  };
+  const getMovePointPosition = () => {
+    let position = ffCesium.flyRoamNew.FlyRoamPoint.position.getValue(ffCesium.viewer.clock.currentTime);
+    console.log("getMovePointPosition--position", position);
+  };
+
   const FlyRoam = () => {
+    flyRoamIntervalTimer = window.setInterval(getMovePointPosition, 2000);
+
     let option = {
       showPoint: true,
       speed: 1,
       pitch: -20,
-      rangeHeight: 1700
+      rangeHeight: 1700,
+      endFlyRoamCallBack: endFlyRoamCallBack
     };
     ffCesium.flyRoamNew.startFly(lnglatArr, option);
   };
