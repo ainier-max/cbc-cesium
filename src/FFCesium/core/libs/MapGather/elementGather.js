@@ -7,10 +7,14 @@ export const elementGather = {
   //进入采集到一半，强制关闭采集
   forceGatherEnd() {
     console.log("this.gatherHandler", this.gatherHandler);
-    for (let i = 0; i < this.gatherHandler.GatherEntity.length; i++) {
-      this.viewer.entities.remove(this.gatherHandler.GatherEntity[i]);
+    if (this.gatherHandler) {
+      if (this.gatherHandler.GatherEntity !== undefined && this.gatherHandler.GatherEntity.length > 0) {
+        for (let i = 0; i < this.gatherHandler.GatherEntity.length; i++) {
+          this.viewer.entities.remove(this.gatherHandler.GatherEntity[i]);
+        }
+        this.gatherHandler.GatherEntity = [];
+      }
     }
-    this.gatherHandler.GatherEntity = [];
     this.gatherHandlerDestroy();
   },
   //如果存在gatherHandler，则先销毁

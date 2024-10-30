@@ -10,10 +10,14 @@ export const militaryPlottingGather = {
   //进入采集到一半，强制关闭采集
   forceMilitaryGatherEnd() {
     console.log("this.militaryPlottingGatherHandler", this.militaryPlottingGatherHandler);
-    for (let i = 0; i < this.militaryPlottingGatherHandler.GatherEntity.length; i++) {
-      this.viewer.entities.remove(this.militaryPlottingGatherHandler.GatherEntity[i]);
+    if (this.militaryPlottingGatherHandler) {
+      if (this.militaryPlottingGatherHandler.GatherEntity !== undefined && this.militaryPlottingGatherHandler.GatherEntity.length > 0) {
+        for (let i = 0; i < this.militaryPlottingGatherHandler.GatherEntity.length; i++) {
+          this.viewer.entities.remove(this.militaryPlottingGatherHandler.GatherEntity[i]);
+        }
+        this.militaryPlottingGatherHandler.GatherEntity = [];
+      }
     }
-    this.militaryPlottingGatherHandler.GatherEntity = [];
     this.endMilitaryPlottingGatherDeal();
   },
   //结束采集Deal
