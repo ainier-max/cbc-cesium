@@ -49,10 +49,7 @@ export const elementEdit = {
     // 生成中心编辑点
     var centerLng = (degrees.west + degrees.east) / 2;
     var centerLat = (degrees.north + degrees.south) / 2;
-    var rect_center_cartesian = Cesium.Cartesian3.fromRadians(
-      centerLng,
-      centerLat
-    );
+    var rect_center_cartesian = Cesium.Cartesian3.fromRadians(centerLng, centerLat);
 
     var pointTemp = createGatherPoint(rect_center_cartesian, viewer);
     pointTemp.name = "rectangleCenterEdit_point";
@@ -78,10 +75,7 @@ export const elementEdit = {
       let pickedObject = viewer.scene.pick(windowPosition);
       if (Cesium.defined(pickedObject)) {
         let entity = pickedObject.id;
-        if (
-          entity.name == "rectangleBorderEdit_point" ||
-          entity.name == "rectangleCenterEdit_point"
-        ) {
+        if (entity.name == "rectangleBorderEdit_point" || entity.name == "rectangleCenterEdit_point") {
           currentPoint = entity;
         }
       }
@@ -123,10 +117,7 @@ export const elementEdit = {
       var ellipsoid = viewer.scene.globe.ellipsoid;
       var lngArr = [];
       var latArr = [];
-      if (
-        currentPoint.flag == "westNorth" ||
-        currentPoint.flag == "eastSouth"
-      ) {
+      if (currentPoint.flag == "westNorth" || currentPoint.flag == "eastSouth") {
         for (var i = 0; i < points.length; i++) {
           if (points[i].flag == "westNorth" || points[i].flag == "eastSouth") {
             var cartographic = ellipsoid.cartesianToCartographic(points[i]);
@@ -136,10 +127,7 @@ export const elementEdit = {
             latArr.push(lat);
           }
         }
-      } else if (
-        currentPoint.flag == "eastNorth" ||
-        currentPoint.flag == "westSouth"
-      ) {
+      } else if (currentPoint.flag == "eastNorth" || currentPoint.flag == "westSouth") {
         for (var i = 0; i < points.length; i++) {
           if (points[i].flag == "eastNorth" || points[i].flag == "westSouth") {
             var cartographic = ellipsoid.cartesianToCartographic(points[i]);
@@ -150,20 +138,14 @@ export const elementEdit = {
           }
         }
       } else if (currentPoint.flag == "center") {
-        var cartographic = ellipsoid.cartesianToCartographic(
-          currentPoint.position._value
-        );
+        var cartographic = ellipsoid.cartesianToCartographic(currentPoint.position._value);
         var centerLng = Cesium.Math.toDegrees(cartographic.longitude);
         var centerLat = Cesium.Math.toDegrees(cartographic.latitude);
         //console.log("centerLng",centerLng);
         var rectInfo = rectangle.rectangle.coordinates.getValue();
         //console.log("currentPoint.position",currentPoint.position._value);
-        var rectWidth =
-          Cesium.Math.toDegrees(rectInfo.east) -
-          Cesium.Math.toDegrees(rectInfo.west);
-        var rectHeight =
-          Cesium.Math.toDegrees(rectInfo.north) -
-          Cesium.Math.toDegrees(rectInfo.south);
+        var rectWidth = Cesium.Math.toDegrees(rectInfo.east) - Cesium.Math.toDegrees(rectInfo.west);
+        var rectHeight = Cesium.Math.toDegrees(rectInfo.north) - Cesium.Math.toDegrees(rectInfo.south);
         //console.log("rectWidth:",rectWidth);
         var rectInfoEast = centerLng + rectWidth / 2;
         lngArr.push(rectInfoEast);
@@ -184,10 +166,7 @@ export const elementEdit = {
       for (var i = 0; i < rectangle.pointsId.length; i++) {
         var id = rectangle.pointsId[i];
         var entityTemp = viewer.entities.getById(id);
-        if (
-          typeof entityTemp != "undefined" &&
-          typeof currentPoint != "undefined"
-        ) {
+        if (typeof entityTemp != "undefined" && typeof currentPoint != "undefined") {
           if (entityTemp.flag != currentPoint.flag) {
             if (entityTemp.flag == "westNorth") {
               entityTemp.position = Cesium.Cartesian3.fromDegrees(west, north);
@@ -200,10 +179,7 @@ export const elementEdit = {
             } else if (entityTemp.flag == "center") {
               var centerLng = (west + east) / 2;
               var centerLat = (north + south) / 2;
-              entityTemp.position = Cesium.Cartesian3.fromDegrees(
-                centerLng,
-                centerLat
-              );
+              entityTemp.position = Cesium.Cartesian3.fromDegrees(centerLng, centerLat);
             }
           }
         }
@@ -214,13 +190,9 @@ export const elementEdit = {
         }
         var radians = Cesium.Rectangle.fromDegrees(west, south, east, north);
         //更新矩形位置
-        rectangle.rectangle.coordinates = new Cesium.CallbackProperty(function (
-          time,
-          result
-        ) {
+        rectangle.rectangle.coordinates = new Cesium.CallbackProperty(function (time, result) {
           return radians;
-        },
-        false);
+        }, false);
       }
     }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
 
@@ -251,9 +223,7 @@ export const elementEdit = {
     //移除地图事件
     rectangle.handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_DOWN);
     rectangle.handler.removeInputAction(Cesium.ScreenSpaceEventType.MOUSE_MOVE);
-    rectangle.handler.removeInputAction(
-      Cesium.ScreenSpaceEventType.RIGHT_CLICK
-    );
+    rectangle.handler.removeInputAction(Cesium.ScreenSpaceEventType.RIGHT_CLICK);
     rectangle.handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_UP);
 
     var dke = rectangle.rectangle.coordinates.getValue();
@@ -266,12 +236,7 @@ export const elementEdit = {
     rectangle.FFCoordinates.west = west;
     rectangle.FFCoordinates.north = north;
     rectangle.FFCoordinates.south = south;
-    rectangle.FFPosition = Cesium.Rectangle.fromDegrees(
-      west,
-      south,
-      east,
-      north
-    );
+    rectangle.FFPosition = Cesium.Rectangle.fromDegrees(west, south, east, north);
 
     the.removeFFEntityIDArr(rectangle.pointsId);
     rectangle.pointsId = [];
@@ -311,11 +276,7 @@ export const elementEdit = {
     circle.pointsId.push(pointCenter.id);
     //生成圆边编辑点
     var degreeTemp = circle.FFRadius / degreeMeter;
-    var circleBorderCartesian = Cesium.Cartesian3.fromDegrees(
-      circle.FFCenterPoint[0] + degreeTemp,
-      circle.FFCenterPoint[1],
-      circle.FFCenterPoint[2]
-    );
+    var circleBorderCartesian = Cesium.Cartesian3.fromDegrees(circle.FFCenterPoint[0] + degreeTemp, circle.FFCenterPoint[1], circle.FFCenterPoint[2]);
     var pointBorder = createGatherPoint(circleBorderCartesian, viewer);
     pointBorder.name = "circleBorderEdit_point";
     // var pointBorder = viewer.entities.add({
@@ -337,10 +298,7 @@ export const elementEdit = {
       let windowPosition = event.position;
       let pickedObject = viewer.scene.pick(windowPosition);
       if (Cesium.defined(pickedObject)) {
-        if (
-          pickedObject.id.name == "circleCenterEdit_point" ||
-          pickedObject.id.name == "circleBorderEdit_point"
-        ) {
+        if (pickedObject.id.name == "circleCenterEdit_point" || pickedObject.id.name == "circleBorderEdit_point") {
           currentPoint = pickedObject.id;
         }
       }
@@ -363,29 +321,17 @@ export const elementEdit = {
       if (currentPoint.name == "circleBorderEdit_point") {
         viewer.scene.screenSpaceCameraController.enableRotate = false;
         viewer.scene.screenSpaceCameraController.enableZoom = false;
-        var centerTemp = viewer.scene.globe.ellipsoid.cartesianToCartographic(
-          circle.position.getValue(Cesium.JulianDate.now())
-        );
-        var radiusTemp = viewer.scene.globe.ellipsoid.cartesianToCartographic(
-          currentPoint.position.getValue(Cesium.JulianDate.now())
-        );
+        var centerTemp = viewer.scene.globe.ellipsoid.cartesianToCartographic(circle.position.getValue(Cesium.JulianDate.now()));
+        var radiusTemp = viewer.scene.globe.ellipsoid.cartesianToCartographic(currentPoint.position.getValue(Cesium.JulianDate.now()));
         var geodesic = new Cesium.EllipsoidGeodesic();
         geodesic.setEndPoints(centerTemp, radiusTemp);
         var radius = geodesic.surfaceDistance;
-        circle.ellipse.semiMinorAxis = new Cesium.CallbackProperty(function (
-          time,
-          result
-        ) {
+        circle.ellipse.semiMinorAxis = new Cesium.CallbackProperty(function (time, result) {
           return radius;
-        },
-        false);
-        circle.ellipse.semiMajorAxis = new Cesium.CallbackProperty(function (
-          time,
-          result
-        ) {
+        }, false);
+        circle.ellipse.semiMajorAxis = new Cesium.CallbackProperty(function (time, result) {
           return radius;
-        },
-        false);
+        }, false);
       }
       //移动的是圆中心，则更新圆中心
       if (currentPoint.name == "circleCenterEdit_point") {
@@ -397,17 +343,11 @@ export const elementEdit = {
         var degreeTemp = circleRadius / degreeMeter; //该值在不同的纬度上不同的值，可以根据自己的情况进行调整
         //获取圆心（经度）
         var ellipsoid = viewer.scene.globe.ellipsoid;
-        var cartographic = ellipsoid.cartesianToCartographic(
-          currentPoint.position.getValue(Cesium.JulianDate.now())
-        );
+        var cartographic = ellipsoid.cartesianToCartographic(currentPoint.position.getValue(Cesium.JulianDate.now()));
         var circleCenterLng = Cesium.Math.toDegrees(cartographic.longitude);
         var circleCenterLat = Cesium.Math.toDegrees(cartographic.latitude);
         //获取圆边经纬度
-        var circleBorderCartesian = Cesium.Cartesian3.fromDegrees(
-          circleCenterLng + degreeTemp,
-          circleCenterLat,
-          circle.FFCenterPoint[2]
-        );
+        var circleBorderCartesian = Cesium.Cartesian3.fromDegrees(circleCenterLng + degreeTemp, circleCenterLat, circle.FFCenterPoint[2]);
         for (var i = 0; i < circle.pointsId.length; i++) {
           var entityTemp = viewer.entities.getById(circle.pointsId[i]);
           if (entityTemp.name == "circleBorderEdit_point") {
@@ -415,9 +355,7 @@ export const elementEdit = {
           }
         }
         //更新圆中心点
-        var positionTemp = currentPoint.position.getValue(
-          Cesium.JulianDate.now()
-        );
+        var positionTemp = currentPoint.position.getValue(Cesium.JulianDate.now());
         circle.position = new Cesium.CallbackProperty(function (time, result) {
           return positionTemp;
         }, false);
@@ -554,10 +492,7 @@ export const elementEdit = {
           currentPoint = entity;
         } else if (entity.name === "polygonEdit_half_point") {
           let ellipsoid = viewer.scene.globe.ellipsoid;
-          let cartesian = viewer.camera.pickEllipsoid(
-            windowPosition,
-            ellipsoid
-          );
+          let cartesian = viewer.camera.pickEllipsoid(windowPosition, ellipsoid);
           if (!cartesian) {
             return;
           }
@@ -579,9 +514,7 @@ export const elementEdit = {
           polygon.pointsId.splice(entity.positionFlag[0] + 1, 0, point.id);
           //删除所有线半点
           for (var i = 0; i < polygon.halfPointsId.length; i++) {
-            viewer.entities.remove(
-              viewer.entities.getById(polygon.halfPointsId[i])
-            );
+            viewer.entities.remove(viewer.entities.getById(polygon.halfPointsId[i]));
           }
           polygon.halfPointsId = [];
           //重新生成所有线半点
@@ -590,15 +523,11 @@ export const elementEdit = {
             var oneTemp = null;
             var twoTemp = null;
             if (i == polygon.pointsId.length - 1) {
-              oneTemp = viewer.entities.getById(polygon.pointsId[i]).position
-                ._value;
-              twoTemp = viewer.entities.getById(polygon.pointsId[0]).position
-                ._value;
+              oneTemp = viewer.entities.getById(polygon.pointsId[i]).position._value;
+              twoTemp = viewer.entities.getById(polygon.pointsId[0]).position._value;
             } else {
-              oneTemp = viewer.entities.getById(polygon.pointsId[i]).position
-                ._value;
-              twoTemp = viewer.entities.getById(polygon.pointsId[i + 1])
-                .position._value;
+              oneTemp = viewer.entities.getById(polygon.pointsId[i]).position._value;
+              twoTemp = viewer.entities.getById(polygon.pointsId[i + 1]).position._value;
             }
             var halfX = (oneTemp.x + twoTemp.x) / 2;
             var halfY = (oneTemp.y + twoTemp.y) / 2;
@@ -658,10 +587,7 @@ export const elementEdit = {
             //console.log("entityTemp123", entityTemp);
             var oneTemp = entityTemp.positionFlag[0];
             var twoTemp = entityTemp.positionFlag[1];
-            if (
-              typeof points[oneTemp] != "undefined" &&
-              typeof points[twoTemp] != "undefined"
-            ) {
+            if (typeof points[oneTemp] != "undefined" && typeof points[twoTemp] != "undefined") {
               var halfX = (points[oneTemp].x + points[twoTemp].x) / 2;
               var halfY = (points[oneTemp].y + points[twoTemp].y) / 2;
               var halfZ = (points[oneTemp].z + points[twoTemp].z) / 2;
@@ -671,14 +597,10 @@ export const elementEdit = {
           }
         }
 
-        polygon.polygon.hierarchy = new Cesium.CallbackProperty(function (
-          time,
-          result
-        ) {
+        polygon.polygon.hierarchy = new Cesium.CallbackProperty(function (time, result) {
           var hierarchyTemp = new Cesium.PolygonHierarchy(points, null);
           return hierarchyTemp;
-        },
-        false);
+        }, false);
       }
     }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
 
@@ -707,9 +629,7 @@ export const elementEdit = {
     polygon.handler.removeInputAction(Cesium.ScreenSpaceEventType.RIGHT_CLICK);
     polygon.handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_UP);
 
-    let lngLatHeightArr = the.cartesian3ArrToLngLatHeightArr(
-      polygon.polygon.hierarchy.getValue().positions
-    );
+    let lngLatHeightArr = the.cartesian3ArrToLngLatHeightArr(polygon.polygon.hierarchy.getValue().positions);
 
     polygon.FFCoordinates = lngLatHeightArr;
     polygon.FFPosition = polygon.polygon.hierarchy.getValue().positions;
@@ -734,8 +654,7 @@ export const elementEdit = {
     let currentPoint = null;
 
     if (!polyline.id) {
-      polyline.id =
-        "polylineEdit_" + new Date().getTime() + "_" + Math.random();
+      polyline.id = "polylineEdit_" + new Date().getTime() + "_" + Math.random();
     }
     document.getElementById(this.cesiumID).style.cursor = "pointer";
     //叠加编辑点
@@ -794,10 +713,7 @@ export const elementEdit = {
         //点击中间点则生成新的中间点
         if (entity.name === "polylineEdit_half_point") {
           let ellipsoid = viewer.scene.globe.ellipsoid;
-          let cartesian = viewer.camera.pickEllipsoid(
-            windowPosition,
-            ellipsoid
-          );
+          let cartesian = viewer.camera.pickEllipsoid(windowPosition, ellipsoid);
           if (!cartesian) {
             return;
           }
@@ -820,18 +736,14 @@ export const elementEdit = {
           polyline.pointsId.splice(entity.positionFlag[0] + 1, 0, point.id);
           //删除所有线半点
           for (var i = 0; i < polyline.halfPointsId.length; i++) {
-            viewer.entities.remove(
-              viewer.entities.getById(polyline.halfPointsId[i])
-            );
+            viewer.entities.remove(viewer.entities.getById(polyline.halfPointsId[i]));
           }
           polyline.halfPointsId = [];
           //重新生成所有线半点
           //console.log("pointsId",pointsId);
           for (var i = 0; i < polyline.pointsId.length - 1; i++) {
-            var oneTemp = viewer.entities.getById(polyline.pointsId[i]).position
-              ._value;
-            var twoTemp = viewer.entities.getById(polyline.pointsId[i + 1])
-              .position._value;
+            var oneTemp = viewer.entities.getById(polyline.pointsId[i]).position._value;
+            var twoTemp = viewer.entities.getById(polyline.pointsId[i + 1]).position._value;
             var halfX = (oneTemp.x + twoTemp.x) / 2;
             var halfY = (oneTemp.y + twoTemp.y) / 2;
             var halfZ = (oneTemp.z + twoTemp.z) / 2;
@@ -880,20 +792,14 @@ export const elementEdit = {
             points.push(viewer.entities.getById(id).position._value);
           }
         }
-        polyline.polyline.positions = new Cesium.CallbackProperty(function (
-          time,
-          result
-        ) {
+        polyline.polyline.positions = new Cesium.CallbackProperty(function (time, result) {
           //更新线上中心点位置信息
           for (var i = 0; i < polyline.halfPointsId.length; i++) {
             var entityTemp = viewer.entities.getById(polyline.halfPointsId[i]);
             if (typeof entityTemp != "undefined") {
               var oneTemp = entityTemp.positionFlag[0];
               var twoTemp = entityTemp.positionFlag[1];
-              if (
-                typeof points[oneTemp] != "undefined" &&
-                typeof points[twoTemp] != "undefined"
-              ) {
+              if (typeof points[oneTemp] != "undefined" && typeof points[twoTemp] != "undefined") {
                 var halfX = (points[oneTemp].x + points[twoTemp].x) / 2;
                 var halfY = (points[oneTemp].y + points[twoTemp].y) / 2;
                 var halfZ = (points[oneTemp].z + points[twoTemp].z) / 2;
@@ -903,8 +809,7 @@ export const elementEdit = {
             }
           }
           return points;
-        },
-        false);
+        }, false);
       }
     }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
 
@@ -956,9 +861,7 @@ export const elementEdit = {
 
     // point.point.color = new Cesium.Color.fromCssColorString(point.FFOption.color).withAlpha(0.5);
     point.point.outlineWidth = 4;
-    point.point.outlineColor = new Cesium.Color.fromCssColorString(
-      "#0000FF"
-    ).withAlpha(1);
+    point.point.outlineColor = new Cesium.Color.fromCssColorString("#0000FF").withAlpha(1);
     if (!point.id) {
       point.id = "pointEdit_" + new Date().getTime() + "_" + Math.random();
     }
@@ -1024,12 +927,9 @@ export const elementEdit = {
     let viewer = this.viewer;
     billboard.timer = null;
     billboard.isEditting = false;
-    billboard.billboard.color = new Cesium.Color.fromCssColorString(
-      "#FFFFFF"
-    ).withAlpha(0.6);
+    billboard.billboard.color = new Cesium.Color.fromCssColorString("#FFFFFF").withAlpha(0.6);
     if (!billboard.id) {
-      billboard.id =
-        "billboardEdit_" + new Date().getTime() + "_" + Math.random();
+      billboard.id = "billboardEdit_" + new Date().getTime() + "_" + Math.random();
     }
     document.getElementById(this.cesiumID).style.cursor = "pointer";
     billboard.handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
@@ -1081,14 +981,10 @@ export const elementEdit = {
     //移除地图事件
     billboard.handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_DOWN);
     billboard.handler.removeInputAction(Cesium.ScreenSpaceEventType.MOUSE_MOVE);
-    billboard.handler.removeInputAction(
-      Cesium.ScreenSpaceEventType.RIGHT_CLICK
-    );
+    billboard.handler.removeInputAction(Cesium.ScreenSpaceEventType.RIGHT_CLICK);
     billboard.handler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_UP);
     billboard.isEditting = false;
-    billboard.billboard.color = new Cesium.Color.fromCssColorString(
-      "#FFFFFF"
-    ).withAlpha(1);
+    billboard.billboard.color = new Cesium.Color.fromCssColorString("#FFFFFF").withAlpha(1);
     the.setAttributeForEntity(billboard, billboard.FFOption, "billboard");
-  },
+  }
 };

@@ -7,6 +7,15 @@ export const militaryPlottingGather = {
   militaryPlottingGatherHandler: null,
   //军事标绘点
   militaryPlottingGatherPoints: [],
+  //进入采集到一半，强制关闭采集
+  forceMilitaryGatherEnd() {
+    console.log("this.militaryPlottingGatherHandler", this.militaryPlottingGatherHandler);
+    for (let i = 0; i < this.militaryPlottingGatherHandler.GatherEntity.length; i++) {
+      this.viewer.entities.remove(this.militaryPlottingGatherHandler.GatherEntity[i]);
+    }
+    this.militaryPlottingGatherHandler.GatherEntity = [];
+    this.endMilitaryPlottingGatherDeal();
+  },
   //结束采集Deal
   endMilitaryPlottingGatherDeal() {
     console.log("endMilitaryPlottingGatherDeal");
@@ -39,10 +48,7 @@ export const militaryPlottingGather = {
           }
           let firstPoint = the.positionToLngLatHeight(p1);
           let endPoints = the.positionToLngLatHeight(p2);
-          var arrow = xp.algorithm.fineArrow(
-            [firstPoint[0], firstPoint[1]],
-            [endPoints[0], endPoints[1]]
-          );
+          var arrow = xp.algorithm.fineArrow([firstPoint[0], firstPoint[1]], [endPoints[0], endPoints[1]]);
           var pHierarchy = new Cesium.PolygonHierarchy(arrow);
           pHierarchy.keyPoints = [firstPoint, endPoints];
           return pHierarchy;
@@ -101,11 +107,9 @@ export const militaryPlottingGather = {
     var bData = {
       polygon: new Cesium.PolygonGraphics({
         hierarchy: dynamicHierarchy,
-        material: Cesium.Color.fromCssColorString(option.color).withAlpha(
-          option.alpha
-        ),
-        show: true,
-      }),
+        material: Cesium.Color.fromCssColorString(option.color).withAlpha(option.alpha),
+        show: true
+      })
     };
     let gatherEntityTemp = this.viewer.entities.add(bData);
     return gatherEntityTemp;
@@ -123,9 +127,8 @@ export const militaryPlottingGather = {
     let cartesianPoints = [];
     let floatingPoint = null;
     let gatherEntity = null;
-    this.militaryPlottingGatherHandler = new Cesium.ScreenSpaceEventHandler(
-      the.viewer.scene.canvas
-    );
+    this.militaryPlottingGatherHandler = new Cesium.ScreenSpaceEventHandler(the.viewer.scene.canvas);
+    this.militaryPlottingGatherHandler.GatherEntity = [];
     this.militaryPlottingGatherHandler.setInputAction(function (event) {
       var position = event.position;
       if (!Cesium.defined(position)) {
@@ -169,11 +172,8 @@ export const militaryPlottingGather = {
         return;
       }
       if (!gatherEntity) {
-        gatherEntity = the.addMilitaryPlotting(
-          cartesianPoints,
-          option,
-          "FFRendezvousEntity"
-        );
+        gatherEntity = the.addMilitaryPlotting(cartesianPoints, option, "FFRendezvousEntity");
+        the.militaryPlottingGatherHandler.GatherEntity.push(gatherEntity);
       }
       floatingPoint.position.setValue(cartesian);
 
@@ -193,8 +193,7 @@ export const militaryPlottingGather = {
       var num = cartesianPoints.length;
       if (num > 2) {
         //获取直线箭头关键坐标数据
-        gatherEntity.FFPlotKeyPoints =
-          the.cartesian3ArrToLngLatHeightArr(cartesianPoints);
+        gatherEntity.FFPlotKeyPoints = the.cartesian3ArrToLngLatHeightArr(cartesianPoints);
         //结束处理
         the.endMilitaryPlottingGatherDeal();
         the.setAttributeForEntity(gatherEntity, option, "FFRendezvousEntity");
@@ -215,9 +214,9 @@ export const militaryPlottingGather = {
     let gatherEntity = null;
     let cartesianPoints = [];
     let floatingPoint = null;
-    this.militaryPlottingGatherHandler = new Cesium.ScreenSpaceEventHandler(
-      the.viewer.scene.canvas
-    );
+    this.militaryPlottingGatherHandler = new Cesium.ScreenSpaceEventHandler(the.viewer.scene.canvas);
+    this.militaryPlottingGatherHandler.GatherEntity = [];
+
     this.militaryPlottingGatherHandler.setInputAction(function (event) {
       var position = event.position;
       if (!Cesium.defined(position)) {
@@ -238,11 +237,8 @@ export const militaryPlottingGather = {
         floatingPoint = createGatherPoint(cartesian, the.viewer);
         floatingPoint.oid = -1;
         the.militaryPlottingGatherPoints.push(floatingPoint);
-        gatherEntity = the.addMilitaryPlotting(
-          cartesianPoints,
-          option,
-          "FFDoubleArrowEntity"
-        );
+        gatherEntity = the.addMilitaryPlotting(cartesianPoints, option, "FFDoubleArrowEntity");
+        the.militaryPlottingGatherHandler.GatherEntity.push(gatherEntity);
       }
       cartesianPoints.push(cartesian);
       var oid = cartesianPoints.length - 2;
@@ -254,8 +250,7 @@ export const militaryPlottingGather = {
         cartesianPoints.pop();
         the.viewer.entities.remove(floatingPoint);
         //获取直线箭头坐标数据
-        gatherEntity.FFPlotKeyPoints =
-          the.cartesian3ArrToLngLatHeightArr(cartesianPoints);
+        gatherEntity.FFPlotKeyPoints = the.cartesian3ArrToLngLatHeightArr(cartesianPoints);
         //结束处理
         the.endMilitaryPlottingGatherDeal();
         the.setAttributeForEntity(gatherEntity, option, "FFDoubleArrowEntity");
@@ -297,9 +292,9 @@ export const militaryPlottingGather = {
     let gatherEntity = null;
     let cartesianPoints = [];
     let floatingPoint = null;
-    this.militaryPlottingGatherHandler = new Cesium.ScreenSpaceEventHandler(
-      the.viewer.scene.canvas
-    );
+    this.militaryPlottingGatherHandler = new Cesium.ScreenSpaceEventHandler(the.viewer.scene.canvas);
+    this.militaryPlottingGatherHandler.GatherEntity = [];
+
     this.militaryPlottingGatherHandler.setInputAction(function (event) {
       var position = event.position;
       if (!Cesium.defined(position)) {
@@ -320,11 +315,8 @@ export const militaryPlottingGather = {
         floatingPoint = createGatherPoint(cartesian, the.viewer);
         floatingPoint.oid = -1;
         the.militaryPlottingGatherPoints.push(floatingPoint);
-        gatherEntity = the.addMilitaryPlotting(
-          cartesianPoints,
-          option,
-          "FFTailedAttackArrowEntity"
-        );
+        gatherEntity = the.addMilitaryPlotting(cartesianPoints, option, "FFTailedAttackArrowEntity");
+        the.militaryPlottingGatherHandler.GatherEntity.push(gatherEntity);
       }
       cartesianPoints.push(cartesian);
       var oid = cartesianPoints.length - 2;
@@ -338,15 +330,10 @@ export const militaryPlottingGather = {
         return;
       }
       //获取直线箭头坐标数据
-      gatherEntity.FFPlotKeyPoints =
-        the.cartesian3ArrToLngLatHeightArr(cartesianPoints);
+      gatherEntity.FFPlotKeyPoints = the.cartesian3ArrToLngLatHeightArr(cartesianPoints);
       //结束处理
       the.endMilitaryPlottingGatherDeal();
-      the.setAttributeForEntity(
-        gatherEntity,
-        option,
-        "FFTailedAttackArrowEntity"
-      );
+      the.setAttributeForEntity(gatherEntity, option, "FFTailedAttackArrowEntity");
       callback(gatherEntity);
     }, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
 
@@ -381,9 +368,8 @@ export const militaryPlottingGather = {
     let gatherEntity = null;
     let cartesianPoints = [];
     let floatingPoint = null;
-    this.militaryPlottingGatherHandler = new Cesium.ScreenSpaceEventHandler(
-      the.viewer.scene.canvas
-    );
+    this.militaryPlottingGatherHandler = new Cesium.ScreenSpaceEventHandler(the.viewer.scene.canvas);
+    this.militaryPlottingGatherHandler.GatherEntity = [];
     this.militaryPlottingGatherHandler.setInputAction(function (event) {
       var position = event.position;
       if (!Cesium.defined(position)) {
@@ -404,11 +390,8 @@ export const militaryPlottingGather = {
         floatingPoint = createGatherPoint(cartesian, the.viewer);
         floatingPoint.oid = -1;
         the.militaryPlottingGatherPoints.push(floatingPoint);
-        gatherEntity = the.addMilitaryPlotting(
-          cartesianPoints,
-          option,
-          "FFStraightArrowEntity"
-        );
+        gatherEntity = the.addMilitaryPlotting(cartesianPoints, option, "FFStraightArrowEntity");
+        the.militaryPlottingGatherHandler.GatherEntity.push(gatherEntity);
         cartesianPoints.push(cartesian);
         var oid = cartesianPoints.length - 2;
         let endPoint = createGatherPoint(cartesian, the.viewer);
@@ -430,15 +413,10 @@ export const militaryPlottingGather = {
       if (num > 1) {
         cartesianPoints.pop();
         //获取直线箭头关键坐标数据
-        gatherEntity.FFPlotKeyPoints =
-          the.cartesian3ArrToLngLatHeightArr(cartesianPoints);
+        gatherEntity.FFPlotKeyPoints = the.cartesian3ArrToLngLatHeightArr(cartesianPoints);
         //结束处理
         the.endMilitaryPlottingGatherDeal();
-        the.setAttributeForEntity(
-          gatherEntity,
-          option,
-          "FFStraightArrowEntity"
-        );
+        the.setAttributeForEntity(gatherEntity, option, "FFStraightArrowEntity");
         callback(gatherEntity);
       }
     }, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
@@ -484,35 +462,18 @@ export const militaryPlottingGather = {
       if (pnts.length === 2) {
         let mid = P.PlotUtils.mid(pnts[0], pnts[1]);
         let d = P.PlotUtils.distance(pnts[0], mid) / 0.9;
-        let pnt = P.PlotUtils.getThirdPoint(
-          pnts[0],
-          mid,
-          P.Constants.HALF_PI,
-          d,
-          true
-        );
+        let pnt = P.PlotUtils.getThirdPoint(pnts[0], mid, P.Constants.HALF_PI, d, true);
         pnts = [pnts[0], pnt, pnts[1]];
         //console.log("pnt",pnt);
       }
       let mid = P.PlotUtils.mid(pnts[0], pnts[2]);
       pnts.push(mid, pnts[0], pnts[1]);
-      let [normals, pnt1, pnt2, pnt3, pList] = [
-        [],
-        undefined,
-        undefined,
-        undefined,
-        [],
-      ];
+      let [normals, pnt1, pnt2, pnt3, pList] = [[], undefined, undefined, undefined, []];
       for (let i = 0; i < pnts.length - 2; i++) {
         pnt1 = pnts[i];
         pnt2 = pnts[i + 1];
         pnt3 = pnts[i + 2];
-        let normalPoints = P.PlotUtils.getBisectorNormals(
-          0.4,
-          pnt1,
-          pnt2,
-          pnt3
-        );
+        let normalPoints = P.PlotUtils.getBisectorNormals(0.4, pnt1, pnt2, pnt3);
         normals = normals.concat(normalPoints);
       }
       let count = normals.length;
@@ -522,13 +483,7 @@ export const militaryPlottingGather = {
         pnt2 = pnts[i + 1];
         pList = pList.concat(pnt1);
         for (let t = 0; t <= P.Constants.FITTING_COUNT; t++) {
-          let pnt = P.PlotUtils.getCubicValue(
-            t / P.Constants.FITTING_COUNT,
-            pnt1,
-            normals[i * 2],
-            normals[i * 2 + 1],
-            pnt2
-          );
+          let pnt = P.PlotUtils.getCubicValue(t / P.Constants.FITTING_COUNT, pnt1, normals[i * 2], normals[i * 2 + 1], pnt2);
           pList = pList.concat(pnt);
         }
         pList = pList.concat(pnt2);
@@ -536,5 +491,5 @@ export const militaryPlottingGather = {
       //console.log("pList123", pList);
       return Cesium.Cartesian3.fromDegreesArray(pList);
     }
-  },
+  }
 };

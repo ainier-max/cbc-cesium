@@ -4,6 +4,15 @@ import { createGatherPoint } from "./common.js";
 export const elementGather = {
   //一次只能由一个采集事件,gatherHandler
   gatherHandler: null,
+  //进入采集到一半，强制关闭采集
+  forceGatherEnd() {
+    console.log("this.gatherHandler", this.gatherHandler);
+    for (let i = 0; i < this.gatherHandler.GatherEntity.length; i++) {
+      this.viewer.entities.remove(this.gatherHandler.GatherEntity[i]);
+    }
+    this.gatherHandler.GatherEntity = [];
+    this.gatherHandlerDestroy();
+  },
   //如果存在gatherHandler，则先销毁
   gatherHandlerDestroy() {
     if (this.gatherHandler) {
@@ -12,6 +21,10 @@ export const elementGather = {
     }
     //关闭鼠标提示
     this.closeMouseTip();
+    //鼠标变成加号
+    document.getElementById(this.cesiumID).style.cursor = "default";
+    this.viewer.scene.screenSpaceCameraController.enableRotate = true;
+    this.viewer.scene.screenSpaceCameraController.enableZoom = true;
   },
   //圆形采集
   circleGather(callback, option) {
@@ -25,9 +38,7 @@ export const elementGather = {
     //进制地图移动
     viewer.scene.screenSpaceCameraController.enableRotate = false;
     viewer.scene.screenSpaceCameraController.enableZoom = false;
-    this.gatherHandler = new Cesium.ScreenSpaceEventHandler(
-      viewer.scene.canvas
-    );
+    this.gatherHandler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
     //鼠标点击事件
     this.gatherHandler.setInputAction((event) => {
       //获取加载地形后对应的经纬度和高程：地标坐标
@@ -46,12 +57,14 @@ export const elementGather = {
           material: Cesium.Color.GREENYELLOW.withAlpha(0.5),
           outline: true,
           outlineColor: Cesium.Color.WHITE,
-          outlineWidth: 3,
-        },
+          outlineWidth: 3
+        }
       });
-      this.gatherHandler.removeInputAction(
-        Cesium.ScreenSpaceEventType.LEFT_DOWN
-      );
+      //供forceGatherEnd使用，采集到一半强制关闭采集
+      this.gatherHandler.GatherEntity = [];
+      this.gatherHandler.GatherEntity.push(centerPoint);
+      this.gatherHandler.GatherEntity.push(gatherCircleEntity);
+      this.gatherHandler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_DOWN);
     }, Cesium.ScreenSpaceEventType.LEFT_DOWN);
 
     // 对鼠标移动事件的监听
@@ -65,14 +78,10 @@ export const elementGather = {
       if (!radiusCartesian) {
         return;
       }
-      var centerCartesian = centerPoint.position.getValue(
-        Cesium.JulianDate.now()
-      );
+      var centerCartesian = centerPoint.position.getValue(Cesium.JulianDate.now());
       //计算移动点与中心点的距离（单位米）
-      var centerTemp =
-        viewer.scene.globe.ellipsoid.cartesianToCartographic(centerCartesian);
-      var radiusTemp =
-        viewer.scene.globe.ellipsoid.cartesianToCartographic(radiusCartesian);
+      var centerTemp = viewer.scene.globe.ellipsoid.cartesianToCartographic(centerCartesian);
+      var radiusTemp = viewer.scene.globe.ellipsoid.cartesianToCartographic(radiusCartesian);
       var geodesic = new Cesium.EllipsoidGeodesic();
       geodesic.setEndPoints(centerTemp, radiusTemp);
       var radius = geodesic.surfaceDistance;
@@ -81,18 +90,12 @@ export const elementGather = {
       if (radius <= 0) {
         return;
       }
-      gatherCircleEntity.ellipse.semiMinorAxis = new Cesium.CallbackProperty(
-        function (time, result) {
-          return radius;
-        },
-        false
-      );
-      gatherCircleEntity.ellipse.semiMajorAxis = new Cesium.CallbackProperty(
-        function (time, result) {
-          return radius;
-        },
-        false
-      );
+      gatherCircleEntity.ellipse.semiMinorAxis = new Cesium.CallbackProperty(function (time, result) {
+        return radius;
+      }, false);
+      gatherCircleEntity.ellipse.semiMajorAxis = new Cesium.CallbackProperty(function (time, result) {
+        return radius;
+      }, false);
     }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
 
     // 对鼠标抬起事件的监听(结束点采集)
@@ -128,9 +131,8 @@ export const elementGather = {
     //进制地图移动
     this.viewer.scene.screenSpaceCameraController.enableRotate = false;
     this.viewer.scene.screenSpaceCameraController.enableZoom = false;
-    this.gatherHandler = new Cesium.ScreenSpaceEventHandler(
-      this.viewer.scene.canvas
-    );
+    this.gatherHandler = new Cesium.ScreenSpaceEventHandler(this.viewer.scene.canvas);
+
     //鼠标点击事件
     this.gatherHandler.setInputAction((event) => {
       //获取加载地形后对应的经纬度和高程：地标坐标
@@ -142,18 +144,16 @@ export const elementGather = {
       startPoint = createGatherPoint(cartesian, the.viewer);
       gatherRectangleEntity = the.viewer.entities.add({
         rectangle: {
-          coordinates: Cesium.Rectangle.fromCartesianArray([
-            cartesian,
-            cartesian,
-          ]),
-          material: Cesium.Color.fromCssColorString(option.color).withAlpha(
-            option.alpha
-          ),
-        },
+          coordinates: Cesium.Rectangle.fromCartesianArray([cartesian, cartesian]),
+          material: Cesium.Color.fromCssColorString(option.color).withAlpha(option.alpha)
+        }
       });
-      this.gatherHandler.removeInputAction(
-        Cesium.ScreenSpaceEventType.LEFT_DOWN
-      );
+      this.gatherHandler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_DOWN);
+
+      //供forceGatherEnd使用，采集到一半强制关闭采集
+      this.gatherHandler.GatherEntity = [];
+      this.gatherHandler.GatherEntity.push(startPoint);
+      this.gatherHandler.GatherEntity.push(gatherRectangleEntity);
     }, Cesium.ScreenSpaceEventType.LEFT_DOWN);
     // 对鼠标移动事件的监听
     this.gatherHandler.setInputAction((event) => {
@@ -166,18 +166,10 @@ export const elementGather = {
       if (!cartesian) {
         return;
       }
-      var startCartesian = startPoint.position.getValue(
-        Cesium.JulianDate.now()
-      );
-      gatherRectangleEntity.rectangle.coordinates = new Cesium.CallbackProperty(
-        function (time, result) {
-          return Cesium.Rectangle.fromCartesianArray([
-            startCartesian,
-            cartesian,
-          ]);
-        },
-        false
-      );
+      var startCartesian = startPoint.position.getValue(Cesium.JulianDate.now());
+      gatherRectangleEntity.rectangle.coordinates = new Cesium.CallbackProperty(function (time, result) {
+        return Cesium.Rectangle.fromCartesianArray([startCartesian, cartesian]);
+      }, false);
     }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
 
     // 对鼠标抬起事件的监听(结束点采集)
@@ -212,10 +204,7 @@ export const elementGather = {
       }
 
       let lngLatHeightTemp = the.cartesian3ToLngLat(cartesian);
-      gatherPointEntity = the.addBillboardEntity(
-        [lngLatHeightTemp.lng, lngLatHeightTemp.lat, lngLatHeightTemp.height],
-        option
-      );
+      gatherPointEntity = the.addBillboardEntity([lngLatHeightTemp.lng, lngLatHeightTemp.lat, lngLatHeightTemp.height], option);
       //鼠标变成默认
       document.getElementById(the.cesiumID).style.cursor = "default";
       //移除事件
@@ -241,10 +230,7 @@ export const elementGather = {
         return;
       }
       let lngLatHeightTemp = the.cartesian3ToLngLat(cartesian);
-      gatherPointEntity = the.addPointEntity(
-        [lngLatHeightTemp.lng, lngLatHeightTemp.lat, lngLatHeightTemp.height],
-        option
-      );
+      gatherPointEntity = the.addPointEntity([lngLatHeightTemp.lng, lngLatHeightTemp.lat, lngLatHeightTemp.height], option);
       //鼠标变成默认
       document.getElementById(the.cesiumID).style.cursor = "default";
       //移除事件
@@ -264,6 +250,8 @@ export const elementGather = {
     //鼠标变成加号
     document.getElementById(this.cesiumID).style.cursor = "crosshair";
     this.gatherHandler = new Cesium.ScreenSpaceEventHandler(this.viewer.canvas);
+    //供forceGatherEnd使用，采集到一半强制关闭采集
+    the.gatherHandler.GatherEntity = [];
     // 对鼠标按下事件的监听
     this.gatherHandler.setInputAction(function (event) {
       //获取加载地形后对应的经纬度和高程：地标坐标
@@ -275,7 +263,7 @@ export const elementGather = {
       var point = createGatherPoint(cartesian, the.viewer);
       entityPoints.push(point);
       cartesianPoints.push(cartesian);
-
+      the.gatherHandler.GatherEntity.push(point);
       if (cartesianPoints.length >= 2) {
         if (gatherPolylineEntity == null) {
           gatherPolylineEntity = the.viewer.entities.add({
@@ -283,12 +271,11 @@ export const elementGather = {
               positions: new Cesium.CallbackProperty(function (time, result) {
                 return cartesianPoints;
               }, false),
-              material: new Cesium.Color.fromCssColorString(
-                option.color
-              ).withAlpha(option.alpha),
-              ...option,
-            },
+              material: new Cesium.Color.fromCssColorString(option.color).withAlpha(option.alpha),
+              ...option
+            }
           });
+          the.gatherHandler.GatherEntity.push(gatherPolylineEntity);
         } else {
           //CallbackProperty监听point变化值会自动set
         }
@@ -333,34 +320,29 @@ export const elementGather = {
       entityPoints.push(point);
       cartesianPoints.push(cartesian);
 
+      //供forceGatherEnd使用，采集到一半强制关闭采集
+      this.gatherHandler.GatherEntity = [];
+      this.gatherHandler.GatherEntity.push(point);
+
       if (cartesianPoints.length >= 3) {
         if (gatherPolygonEntity == null) {
           gatherPolygonEntity = the.viewer.entities.add({
             polygon: {
               hierarchy: new Cesium.CallbackProperty(function (time, result) {
-                var hierarchyTemp = new Cesium.PolygonHierarchy(
-                  cartesianPoints,
-                  null
-                );
+                var hierarchyTemp = new Cesium.PolygonHierarchy(cartesianPoints, null);
                 return hierarchyTemp;
               }, false),
-              material: Cesium.Color.fromCssColorString(option.color).withAlpha(
-                option.alpha
-              ),
-              ...option,
-            },
+              material: Cesium.Color.fromCssColorString(option.color).withAlpha(option.alpha),
+              ...option
+            }
           });
+          //供forceGatherEnd使用，采集到一半强制关闭采集
+          this.gatherHandler.GatherEntity.push(gatherPolygonEntity);
         } else {
-          gatherPolygonEntity.polygon.hierarchy = new Cesium.CallbackProperty(
-            function (time, result) {
-              var hierarchyTemp = new Cesium.PolygonHierarchy(
-                cartesianPoints,
-                null
-              );
-              return hierarchyTemp;
-            },
-            false
-          );
+          gatherPolygonEntity.polygon.hierarchy = new Cesium.CallbackProperty(function (time, result) {
+            var hierarchyTemp = new Cesium.PolygonHierarchy(cartesianPoints, null);
+            return hierarchyTemp;
+          }, false);
         }
       }
     }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
@@ -378,5 +360,5 @@ export const elementGather = {
       the.setAttributeForEntity(gatherPolygonEntity, option, "polygon");
       callback(gatherPolygonEntity);
     }, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
-  },
+  }
 };
