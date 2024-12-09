@@ -13,5 +13,12 @@ export const mapSeniorMenuConfigs = [
     url: "/modelEditTool",
     type: "VUE",
     img: "./images/menu/addGeode.png"
+  },
+  {
+    title: "通用多图层叠加模板",
+    key: "mapDataLayer",
+    url: "/mapDataLayer",
+    type: "VUE",
+    img: "./images/menu/addGeode.png"
   }
 ];

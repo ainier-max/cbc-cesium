@@ -8,7 +8,10 @@ import router from "./router/index";
 import ElementPlus from "element-plus";
 import "element-plus/dist/index.css";
 
-window.vueApp.use(ElementPlus).use(router).mount("#app");
+import { createPinia } from "pinia";
+const pinia = createPinia();
+
+window.vueApp.use(ElementPlus).use(router).use(pinia).mount("#app");
 console.log("router", router);
 router.beforeEach((to, from, next) => {
   console.log("beforeEach--to", to);

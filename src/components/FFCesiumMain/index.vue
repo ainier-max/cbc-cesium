@@ -3,7 +3,7 @@
     <el-container style="height: 100%">
       <el-header>
         <div>
-          <span style="cursor: pointer; color: #ffffff; font-size: 26px; font-weight: bold; padding-left: 30px">FFCesium</span>
+          <span style="cursor: pointer; color: #ffffff; font-size: 26px; font-weight: bold; padding-left: 30px">信图GIS平台</span>
         </div>
       </el-header>
       <el-container style="height: 100%">

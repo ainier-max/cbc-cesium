@@ -70,6 +70,10 @@ const routes = [
   {
     path: "/modelEditTool",
     component: () => import("@/MapSenior/ModelEditTool/index.vue")
+  },
+  {
+    path: "/mapDataLayer",
+    component: () => import("@/MapSenior/MapDataLayer/index.vue")
   }
 ];
 const router = createRouter({

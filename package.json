@@ -10,6 +10,7 @@
     "packconfusemin": "rollup --config bin/pack/rollup.config.confuse.js && rollup --config bin/pack/rollup.config.confuse.min.js"
   },
   "dependencies": {
+    "pinia": "^2.1.7",
     "@kangc/v-md-editor": "^2.3.15",
     "axios": "^0.27.2",
     "@turf/turf": "^6.5.0",
