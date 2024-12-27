@@ -91,7 +91,7 @@ export const OverviewStore = defineStore("overviewID", {
             id: "1",
             name: "土壤墒情站点1",
             type: "soilContentLayer",
-            lnglat: [130.15591553352067, 46.90313388725818],
+            lnglat: [129.91776370663652, 46.757823302533474],
             dynamicTitleList: [
               {
                 field: "土壤水分",
