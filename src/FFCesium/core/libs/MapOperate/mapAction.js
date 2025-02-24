@@ -35,6 +35,8 @@ export const mapAction = {
       console.log("getCameraEvent--当前相机位置信息--option", option);
     }, 2000);
   },
+  
+
 
   /**
    * 飞向指定坐标并应用特定的视角效果。
@@ -72,6 +74,17 @@ export const mapAction = {
       }
     });
   },
+  /**
+   * 根据坐标串进行定位
+   * @param {*} lnglatArr 
+   */
+  flyToByBoundingSphere(lnglatArr,option){
+    let boundingSphere = Cesium.BoundingSphere.fromPoints(this.lngLatHeightArrToCartesian3Arr(lnglatArr))
+    //console.log("boundingSphere",boundingSphere);
+    // 使用 flyToBoundingSphere 定位到包围球
+    this.viewer.camera.flyToBoundingSphere(boundingSphere, option)
+  },
+
   //定位
   setView(option) {
     this.viewer.camera.setView({

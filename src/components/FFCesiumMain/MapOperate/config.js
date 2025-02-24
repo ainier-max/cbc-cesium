@@ -18,6 +18,12 @@ export const mapActionMenuConfigs = [
     key: "getCameraEvent",
     url: "./FFCesiumExample/MapOperate/mapAction/getCameraEvent.vue",
     img: "./images/menu/addGeode.png"
+  },
+  {
+    title: "坐标串（面，线）进行定位",
+    key: "getCameraEvent",
+    url: "./FFCesiumExample/MapOperate/mapAction/flyToByBoundingSphere.vue",
+    img: "./images/menu/addGeode.png"
   }
 ];
 

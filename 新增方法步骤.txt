@@ -1,0 +1,20 @@
+1：新增菜单
+看示例放置位置比如“地图动作”示例，则再
+src\components\FFCesiumMain\MapOperate\config.js
+配置新的菜单
+ {
+    title: "根据坐标数组进行定位",
+    key: "getCameraEvent",
+    url: "./FFCesiumExample/MapOperate/mapAction/flyToByBoundingSphere.vue",
+    img: "./images/menu/addGeode.png"
+  }
+
+2：新增示例文件（flyToByBoundingSphere）
+再上面配置的url路径下新增文件，比如
+./public/FFCesiumExample/MapOperate/mapAction/flyToByBoundingSphere.vue
+
+3：编写flyToByBoundingSphere内容
+
+4：编写flyToByBoundingSphere方法
+
+5：测试

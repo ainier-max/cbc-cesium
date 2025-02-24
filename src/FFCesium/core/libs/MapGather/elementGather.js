@@ -325,8 +325,8 @@ export const elementGather = {
       cartesianPoints.push(cartesian);
 
       //供forceGatherEnd使用，采集到一半强制关闭采集
-      this.gatherHandler.GatherEntity = [];
-      this.gatherHandler.GatherEntity.push(point);
+      the.gatherHandler.GatherEntity = [];
+      the.gatherHandler.GatherEntity.push(point);
 
       if (cartesianPoints.length >= 3) {
         if (gatherPolygonEntity == null) {
@@ -341,7 +341,7 @@ export const elementGather = {
             }
           });
           //供forceGatherEnd使用，采集到一半强制关闭采集
-          this.gatherHandler.GatherEntity.push(gatherPolygonEntity);
+          the.gatherHandler.GatherEntity.push(gatherPolygonEntity);
         } else {
           gatherPolygonEntity.polygon.hierarchy = new Cesium.CallbackProperty(function (time, result) {
             var hierarchyTemp = new Cesium.PolygonHierarchy(cartesianPoints, null);

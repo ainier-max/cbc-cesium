@@ -20,13 +20,11 @@
       alpha: 0.5
     });
   };
-
   const straightArrowGatherFunCallback = (gatherObj) => {
     console.log("采集成功,其对象为：", gatherObj);
     console.log("采集成功,其关键坐标为：", gatherObj.FFPlotKeyPoints);
     console.log("采集成功,其坐标为：", gatherObj.FFCoordinates);
   };
-
   const endGatherFun = () => {
     ffCesium.forceMilitaryGatherEnd();
   };

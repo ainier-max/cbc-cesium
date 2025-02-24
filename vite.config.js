@@ -10,12 +10,12 @@ export default defineConfig({
   // },
   plugins: [pluginVue(), vitePluginCesium()],
   server: {
-    host: "192.168.15.228",
-    port: "4000",
+    host: "192.168.25.43",
+    port: "4000"
   },
   resolve: {
     alias: {
-      "@": resolve(__dirname, "./src"),
-    },
-  },
+      "@": resolve(__dirname, "./src")
+    }
+  }
 });
