@@ -12,6 +12,14 @@ class MilitaryPlottingGatherClass {
     militaryPlottingGatherHandler = null;
     //军事标绘点
     militaryPlottingGatherPoints = [];
+    forceMilitaryGatherEndInfo = "强制结束军事标绘采集方法(forceMilitaryGatherEnd)";
+    endMilitaryPlottingGatherDealInfo = "结束军事标绘采集方法(endMilitaryPlottingGatherDeal)";
+    addMilitaryPlottingInfo = "添加军事标绘区域展示方法(addMilitaryPlotting)";
+    rendezvousGatherInfo = "集结地采集方法(rendezvousGather)";
+    doubleArrowGatherInfo = "双箭头采集方法(doubleArrowGather)";
+    tailedAttackArrowGatherInfo = "燕尾箭头采集方法(tailedAttackArrowGather)";
+    straightArrowGatherInfo = "直箭头采集方法(straightArrowGather)";
+    fineGatheringPlaceInfo = "集结地平滑处理方法(fineGatheringPlace)";
 
     constructor(ffCesium) {
         this.ffCesium = ffCesium;

@@ -16,7 +16,7 @@ onMounted(() => {
   ffCesium = new FFCesium("cesiumContainer");
   console.log("ffCesium", ffCesium);
   ffCesium.dataServerClass.addTerrain("http://data.marsgis.cn/terrain");
-  ffCesium.setView({
+  ffCesium.mapActionClass.setView({
     lng: 119.09490233012195,
     lat: 26.03963003753146,
     height: 3000,

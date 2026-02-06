@@ -2,6 +2,12 @@ import PrimitiveLogic from "./LogicClass/PrimitiveLogic.js";
 import * as Cesium from "cesium";
 
 export default class PrimitiveClass {
+    addGltfPrimitiveInfo = "添加GLTF模型方法(addGltfPrimitive)";
+    addBillboardPrimitiveInfo = "添加图标Primitive方法(addBillboardPrimitive)";
+    addPointPrimitiveInfo = "添加点Primitive方法(addPointPrimitive)";
+    addPolylinePrimitiveInfo = "添加线Primitive方法(addPolylinePrimitive)";
+    addPolygonPrimitiveInfo = "添加面Primitive方法(addPolygonPrimitive)";
+    removeFFPrimitiveInfo = "移除Primitive方法(removeFFPrimitive)";
     constructor(viewer) {
         this.viewer = viewer;
         this.primitiveLogic = new PrimitiveLogic();

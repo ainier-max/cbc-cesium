@@ -1,6 +1,17 @@
 import MapServerLogic from "./LogicClass/MapServerLogic.js";
 
 class MapServerClass {
+    addGaodeLayerInfo = "添加高德标准地图方法(addGaodeLayer)";
+    addTdtVecLayerInfo = "加载天地图平面地图方法(addTdtVecLayer)";
+    addTdtCvaLayerInfo = "加载天地图平面注记地图方法(addTdtCvaLayer)";
+    addTdtImgLayerInfo = "加载天地图影像地图方法(addTdtImgLayer)";
+    addTdtCiaLayerInfo = "加载天地图影像注记地图方法(addTdtCiaLayer)";
+    addTdtCtaLayerInfo = "加载天地图道路地图方法(addTdtCtaLayer)";
+    addTdtLayerInfo = "加载其他天地图服务方法(addTdtLayer)";
+    addArcgisImgLayerInfo = "加载ArcGIS瓦片服务方法(addArcgisImgLayer)";
+    addCustomLayerInfo = "加载自定义地图服务方法(addCustomLayer)";
+    removeMapLayerInfo = "删除地图图层方法(removeMapLayer)";
+    hideMapLayerInfo = "隐藏地图图层方法(hideMapLayer)";
     constructor(viewer) {
         this.viewer = viewer;
         this.mapServerLogic = new MapServerLogic();

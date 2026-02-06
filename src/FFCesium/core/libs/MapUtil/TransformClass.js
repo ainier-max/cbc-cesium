@@ -2,6 +2,7 @@ import TransformClassLogic from "./LogicClass/TransformClassLogic.js";
 class TransformClass {
   viewer;
   transformClassLogic;
+  getLngLatArrFromLngLatHeightArrInfo = "经纬高数组转经纬度数组方法(getLngLatArrFromLngLatHeightArr)";
   constructor(viewer) {
     this.viewer = viewer;
     this.transformClassLogic = new TransformClassLogic(viewer);

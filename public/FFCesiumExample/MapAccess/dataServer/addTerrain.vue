@@ -1,16 +1,10 @@
 <template>
   <div id="cesiumContainer">
-    <button
-      style="position: absolute; left: 100px; top: 100px; z-index: 999"
-      @click="addTerrainFun"
-    >
+    <button style="position: absolute; left: 100px; top: 100px; z-index: 999" @click="addTerrainFun">
       叠加地形服务
     </button>
 
-    <button
-      style="position: absolute; left: 100px; top: 150px; z-index: 999"
-      @click="removeTerrainFun"
-    >
+    <button style="position: absolute; left: 100px; top: 150px; z-index: 999" @click="removeTerrainFun">
       移除地形服务
     </button>
   </div>
@@ -38,7 +32,7 @@ onMounted(() => {
   }; //初始化
   ffCesium = new FFCesium("cesiumContainer", viewerOption);
   let mapLayer = ffCesium.mapServerClass.addTdtImgLayer();
-  ffCesium.setView({ lng: 118.1, lat: 24.37, height: 10000, pitchRadiu: -50 });
+  ffCesium.mapActionClass.setView({ lng: 118.1, lat: 24.37, height: 10000, pitchRadiu: -50 });
 });
 const addTerrainFun = () => {
   let terrainLayer = ffCesium.dataServerClass.addTerrain("http://data.marsgis.cn/terrain");

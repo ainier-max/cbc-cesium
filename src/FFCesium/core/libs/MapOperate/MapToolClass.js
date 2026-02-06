@@ -5,6 +5,26 @@ import CesiumNavigation from "cesium-navigation-es6";
 import SkyBoxOnGround from "../../dependentLib/skyboxExtend.js";
 
 export default class MapToolClass {
+    addSkyBoxInfo = "添加天空盒方法(addSkyBox)";
+    removeSkyBoxInfo = "移除天空盒方法(removeSkyBox)";
+    cartesian3ToLngLatInfo = "Cartesian3转经纬度方法(cartesian3ToLngLat)";
+    lngLatToCartesian3Info = "经纬度转Cartesian3方法(lngLatToCartesian3)";
+    lngLatArrToCartesian3Info = "经纬度数组转Cartesian3数组方法(lngLatArrToCartesian3)";
+    openMapInfoInfo = "显示经纬度信息方法(openMapInfo)";
+    closeMapInfoInfo = "关闭经纬度信息方法(closeMapInfo)";
+    measureLineLengthInfo = "测量距离方法(measureLineLength)";
+    clearMeasureLineLengthEntitysInfo = "清除测距实体方法(clearMeasureLineLengthEntitys)";
+    measureAreaSpaceInfo = "测量面积方法(measureAreaSpace)";
+    clearMeasureAreaSpaceEntitysInfo = "清除测面实体方法(clearMeasureAreaSpaceEntitys)";
+    openCompassToolInfo = "打开指北针工具方法(openCompassTool)";
+    closeCompassToolInfo = "关闭指北针工具方法(closeCompassTool)";
+    openScaleToolInfo = "打开比例尺工具方法(openScaleTool)";
+    closeScaleToolInfo = "关闭比例尺工具方法(closeScaleTool)";
+    setOpenMouseTipOptionInfo = "设置鼠标提示样式方法(setOpenMouseTipOption)";
+    openMouseTipInfo = "开启鼠标提示方法(openMouseTip)";
+    closeMouseTipInfo = "关闭鼠标提示方法(closeMouseTip)";
+    updateMouseTipInfo = "更新鼠标提示方法(updateMouseTip)";
+    createBezierSplineInfo = "创建贝塞尔曲线方法(createBezierSpline)";
     constructor(viewer, cesiumID) {
         this.viewer = viewer;
         this.cesiumID = cesiumID;

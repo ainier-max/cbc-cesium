@@ -29,5 +29,11 @@ export const advancedExamplesMenuConfigs = [
     key: "FlyRoamNew",
     url: "./FFCesiumExample/senior/FlyRoamNew/FlyRoamNew.vue",
     img: "./images/menu/addGeode.png"
+  },
+  {
+    title: "缓存资源示例",
+    key: "CacheUrl",
+    url: "./FFCesiumExample/senior/CacheUrl/CacheUrl.vue",
+    img: "./images/menu/addGeode.png"
   }
 ];

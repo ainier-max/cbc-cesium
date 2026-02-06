@@ -1,4 +1,8 @@
 import * as Cesium from "cesium";
+
+//缓存类
+import CacheUrlClass from "./dependentLib/CacheUrlClass.js";
+
 //地图效果
 import ParticleEffectClass from "./libs/MapEffect/ParticleEffectClass.js";//粒子效果类
 import WeatherEffectClass from "./libs/MapEffect/WeatherEffectClass.js";//天气效果类
@@ -22,15 +26,12 @@ import ElementEditClass from "./libs/MapGather/ElementEditClass.js";
 import MilitaryPlottingGatherClass from "./libs/MapGather/MilitaryPlottingGatherClass.js";
 import MilitaryPlottingEditClass from "./libs/MapGather/MilitaryPlottingEditClass.js";
 
-
-
 //空间分析
 import SpatialAnalysisClass from "./libs/SpatialAnalysis/SpatialAnalysisClass.js";
 //高级示例
 import AddTypeClass from "./libs/AdvancedExamples/AddTypeClass.js";
 //地图通用工具包
 import MapUtilClass from "./libs/MapUtil/MapUtilClass.js";
-//其他
 
 //高级示例
 import RotateTool from "../senior/libs/rotateTool/index.js";
@@ -65,6 +66,30 @@ class FFCesium {
   flyRoam;
   flyRoamNew;
   constructor(id, option) {
+    // Synchronous constructor: start async cache init without awaiting
+    // readiness promise so callers can wait for full initialization
+    this._ready = new Promise((resolve) => {
+      this._resolveReady = resolve
+    })
+
+    if (option?.customOption?.cacheUrl) {
+      this.openCache(id, option)
+    } else {
+      this.initMap(id, option)
+    }
+  }
+  //开启缓存
+  async openCache(id, option) {
+    console.log("开启缓存");
+    let cacheOption = {
+      cacheUrl: option.customOption.cacheUrl,
+    }
+    let cacheUrlClass = new CacheUrlClass(cacheOption)
+    await cacheUrlClass.openIndexDb()
+    this.initMap(id, option)
+  }
+  //地图初始化
+  initMap(id, option) {
     this.Cesium = Cesium;
     //合并其他文件JS文件方法1231
     let time1 = new Date().getTime();
@@ -87,9 +112,6 @@ class FFCesium {
     }
     this.viewer._cesiumWidget._creditContainer.style.display = "none"; //去除版权信息
     let time3 = new Date().getTime();
-
-
-
 
     // this.addPrimitiveInit();
     console.log("FFCesium构建总耗时（ms）", time3 - time1);
@@ -128,7 +150,19 @@ class FFCesium {
     this.rotateTool = new RotateTool(this);
     this.flyRoam = new FlyRoam(this);
     this.flyRoamNew = new FlyRoamNew(this);
+    // mark ready
+    try {
+      this._resolveReady && this._resolveReady(this)
+    } catch (e) {
+      // ignore
+    }
   }
+
+  // return a promise that resolves when initialization completes
+  whenReady() {
+    return this._ready
+  }
+
   defaultMap() {
     let viewerOption = {
       animation: false, //是否创建动画小器件，左下角仪表

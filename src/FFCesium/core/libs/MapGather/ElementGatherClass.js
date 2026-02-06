@@ -8,6 +8,14 @@ import ElementGatherLogic from "./LogicClass/ElementGatherLogic.js";
 class ElementGatherClass {
     //一次只能由一个采集事件,gatherHandler
     gatherHandler = null;
+    forceGatherEndInfo = "强制结束采集方法(forceGatherEnd)";
+    gatherHandlerDestroyInfo = "销毁采集事件方法(gatherHandlerDestroy)";
+    circleGatherInfo = "圆采集方法(circleGather)";
+    rectangleGatherInfo = "矩形采集方法(rectangleGather)";
+    billboardGatherInfo = "图标点采集方法(billboardGather)";
+    pointGatherInfo = "点采集方法(pointGather)";
+    polylineGatherInfo = "线采集方法(polylineGather)";
+    polygonGatherInfo = "面采集方法(polygonGather)";
 
     constructor(ffCesium) {
         this.ffCesium = ffCesium;

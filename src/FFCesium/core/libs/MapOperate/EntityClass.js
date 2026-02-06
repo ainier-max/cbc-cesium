@@ -1,6 +1,16 @@
 import EntityLogic from "./LogicClass/EntityLogic.js";
 
 export default class EntityClass {
+    removeFFEntityInfo = "删除实体方法(removeFFEntity)";
+    removeFFEntityArrInfo = "批量删除实体方法(removeFFEntityArr)";
+    removeFFEntityIDInfo = "按ID删除实体方法(removeFFEntityID)";
+    removeFFEntityIDArrInfo = "按ID批量删除实体方法(removeFFEntityIDArr)";
+    addCircleEntityInfo = "添加圆实体方法(addCircleEntity)";
+    addPointEntityInfo = "添加点实体方法(addPointEntity)";
+    addBillboardEntityInfo = "添加图标实体方法(addBillboardEntity)";
+    addRectangleEntityInfo = "添加矩形实体方法(addRectangleEntity)";
+    addPolygonEntityInfo = "添加面实体方法(addPolygonEntity)";
+    addPolylineEntityInfo = "添加线实体方法(addPolylineEntity)";
     constructor(ffCesium) {
         this.ffCesium = ffCesium;
         this.viewer = ffCesium.viewer;

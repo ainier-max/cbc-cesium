@@ -1,19 +1,13 @@
 <template>
   <div id="cesiumContainer">
-    <button style="position: absolute; left: 100px; top: 100px; z-index: 999" @click="addWmslayerFun">
-      叠加土地资源(wms服务)
-    </button>
-
-    <button style="position: absolute; left: 100px; top: 150px; z-index: 999" @click="removeWmslayerFun">
-      移除土地资源(wms服务)
-    </button>
   </div>
 </template>
 <script lang="ts" setup>
 import { onMounted } from "vue";
 import FFCesium from "FFCesium";
+
 let ffCesium = null;
-onMounted(() => {
+onMounted(async () => {
   let viewerOption = {
     animation: false, //是否创建动画小器件，左下角仪表
     baseLayerPicker: false, //是否显示图层选择器
@@ -29,26 +23,37 @@ onMounted(() => {
     shadows: true, //是否显示背影
     shouldAnimate: true,
     baseLayer: false,
+    customOption: {
+      cacheUrl: [
+        '/webst04.is.autonavi.com/appmaptile',
+        '/YTGLB',//3D模型
+        '/YTFSGQ',//倾斜摄影
+        '/YTBGQ1',//倾斜摄影
+        '/YTTYGQ',//倾斜摄影
+        '/YTHZJGJH',//倾斜摄影
+        '/YTQSQXSY2',//倾斜摄影
+        '/YTDOM220',//正射影像
+        '/terrain',//地形服务
+        '/YTBingmap',//影像地图
+        'http://t0.tianditu.gov.cn/cia_c',//天地图注记
+        'layers=sl%3Aqx',//geoserver服务
+        'layers=sl%3Ajmssx',//geoserver服务
+        'layers=sl%3Aytgq',//geoserver服务
+        'layers=sl%3Atyxbj',//geoserver服务
+        '/cesium/Assets/'//cesium资源
+      ]
+    }
   }; //初始化
   ffCesium = new FFCesium("cesiumContainer", viewerOption);
-  let mapLayer = ffCesium.mapServerClass.addTdtImgLayer();
-  ffCesium.mapActionClass.setView({
-    lng: 118.135,
-    lat: 24.339,
-    height: 20000,
-    pitchRadiu: -50,
-  });
+  // wait until FFCesium completes initialization (including cache open)
+  await ffCesium.whenReady();
+  console.log("FFCesium ready");
+  ffCesium.mapActionClass.setView({ lng: 118.1022, lat: 24.4959, height: 100000, pitchRadiu: -90 });
+
+  let url = "https://webst04.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z}";
+  ffCesium.mapServerClass.addCustomLayer(url);
 });
-let wmslayer;
-const addWmslayerFun = () => {
-  let url = "http://192.168.15.228:8078/geoserver/cbc/wms";
-  let layerName = "cbc:ground";
-  wmslayer = ffCesium.dataServerClass.addWmslayer(url, layerName);
-  console.log("wmslayer", wmslayer);
-};
-const removeWmslayerFun = () => {
-  ffCesium.mapServerClass.removeMapLayer(wmslayer);
-};
+
 </script>
 <style scoped>
 #cesiumContainer {

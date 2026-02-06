@@ -2,6 +2,12 @@ import MapActionLogic from "./LogicClass/MapActionLogic.js";
 import * as Cesium from "cesium";
 
 export default class MapActionClass {
+    getCameraEventInfo = "获取相机信息事件方法(getCameraEvent)";
+    getCameraLocationInfo = "获取相机位置信息方法(getCameraLocation)";
+    flyToInfo = "飞行定位方法(flyTo)";
+    flyToByBoundingSphereInfo = "根据包围球飞行方法(flyToByBoundingSphere)";
+    setViewInfo = "设置视角方法(setView)";
+    resetViewInfo = "重置视角方法(resetView)";
     constructor(ffCesium) {
         this.ffCesium = ffCesium;
         this.viewer = ffCesium.viewer;

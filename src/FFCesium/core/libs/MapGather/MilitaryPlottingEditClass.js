@@ -12,6 +12,20 @@ class MilitaryPlottingEditClass {
     militaryPlottingEditHandler = null;
     //军事修改点
     militaryPlottingEditPoints = [];
+    endMilitaryPlottingEditDealInfo = "结束军事标绘编辑方法(endMilitaryPlottingEditDeal)";
+    closeRendezvousEditInfo = "关闭集结地编辑方法(closeRendezvousEdit)";
+    rendezvousEditInfo = "集结地编辑方法(rendezvousEdit)";
+    addRendezvousEntityInfo = "添加集结地实体方法(addRendezvousEntity)";
+    closeDoubleArrowEditInfo = "关闭双箭头编辑方法(closeDoubleArrowEdit)";
+    doubleArrowEditInfo = "双箭头编辑方法(doubleArrowEdit)";
+    addDoubleArrowEntityInfo = "添加双箭头实体方法(addDoubleArrowEntity)";
+    closeTailedAttackArrowEditInfo = "关闭燕尾箭头编辑方法(closeTailedAttackArrowEdit)";
+    tailedAttackArrowEditInfo = "燕尾箭头编辑方法(tailedAttackArrowEdit)";
+    addTailedAttackArrowInfo = "添加燕尾箭头实体方法(addTailedAttackArrow)";
+    addStraightArrowEntityInfo = "添加直箭头实体方法(addStraightArrowEntity)";
+    closeStraightArrowEditInfo = "关闭直箭头编辑方法(closeStraightArrowEdit)";
+    straightArrowEditInfo = "直箭头编辑方法(straightArrowEdit)";
+    fineGatheringPlaceInfo = "集结地平滑处理方法(fineGatheringPlace)";
 
     constructor(ffCesium) {
         this.ffCesium = ffCesium;

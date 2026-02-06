@@ -6,6 +6,18 @@ import ElementEditLogic from "./LogicClass/ElementEditLogic.js";
  * 元素编辑类
  */
 class ElementEditClass {
+    rectangleEditInfo = "矩形编辑方法(rectangleEdit)";
+    closeRectangleEditInfo = "关闭矩形编辑方法(closeRectangleEdit)";
+    circleEditInfo = "圆编辑方法(circleEdit)";
+    closeCircleEditInfo = "关闭圆编辑方法(closeCircleEdit)";
+    polygonEditInfo = "面编辑方法(polygonEdit)";
+    closePolygonEditInfo = "关闭面编辑方法(closePolygonEdit)";
+    polylineEditInfo = "线编辑方法(polylineEdit)";
+    closePolylineEditInfo = "关闭线编辑方法(closePolylineEdit)";
+    pointEditInfo = "点编辑方法(pointEdit)";
+    closePointEditInfo = "关闭点编辑方法(closePointEdit)";
+    billboardEditInfo = "图标编辑方法(billboardEdit)";
+    closeBillboardEditInfo = "关闭图标编辑方法(closeBillboardEdit)";
     constructor(ffCesium) {
         this.ffCesium = ffCesium;
         this.viewer = ffCesium.viewer;

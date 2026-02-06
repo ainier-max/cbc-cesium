@@ -69,7 +69,7 @@
   ];
   onMounted(() => {
     ffCesium = new FFCesium("cesiumContainer");
-    ffCesium.setView({
+    ffCesium.mapActionClass.setView({
       lng: 129.981290445000013,
       lat: 46.756103293000074,
       height: 8000,
@@ -85,7 +85,7 @@
       color: "#FFFF00",
       alpha: 1
     };
-    let polylineEntity = ffCesium.addPolylineEntity(lnglatArr, option);
+    let polylineEntity = ffCesium.entityClass.addPolylineEntity(lnglatArr, option);
   });
 
   const endFlyRoamCallBack = () => {

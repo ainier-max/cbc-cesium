@@ -1,30 +1,18 @@
 <template>
   <div id="cesiumContainer">
-    <button
-      style="position: absolute; left: 100px; top: 50px; z-index: 999"
-      @click="findWMSServiceFun"
-    >
+    <button style="position: absolute; left: 100px; top: 50px; z-index: 999" @click="findWMSServiceFun">
       查询wms服务接口(所有数据)
     </button>
 
-    <button
-      style="position: absolute; left: 100px; top: 100px; z-index: 999"
-      @click="findWMSServiceByPointFun"
-    >
+    <button style="position: absolute; left: 100px; top: 100px; z-index: 999" @click="findWMSServiceByPointFun">
       点周边查询wms服务接口
     </button>
 
-    <button
-      style="position: absolute; left: 100px; top: 150px; z-index: 999"
-      @click="findWMSServiceByRectFun"
-    >
+    <button style="position: absolute; left: 100px; top: 150px; z-index: 999" @click="findWMSServiceByRectFun">
       矩形查询wms服务接口
     </button>
 
-    <button
-      style="position: absolute; left: 100px; top: 200px; z-index: 999"
-      @click="findWMSServiceByConditionFun"
-    >
+    <button style="position: absolute; left: 100px; top: 200px; z-index: 999" @click="findWMSServiceByConditionFun">
       条件查询wms服务接口(kind='2380')
     </button>
   </div>
@@ -52,7 +40,7 @@ onMounted(() => {
   }; //初始化
   ffCesium = new FFCesium("cesiumContainer", viewerOption);
   let mapLayer = ffCesium.mapServerClass.addTdtImgLayer();
-  ffCesium.setView({
+  ffCesium.mapActionClass.setView({
     lng: 118.135,
     lat: 24.489,
     height: 20000,

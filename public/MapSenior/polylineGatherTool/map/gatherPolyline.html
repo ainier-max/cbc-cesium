@@ -1,37 +1,35 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8" />
-    <title>Historic Topographic Maps</title>
-    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
 
-    <!-- Load Leaflet from CDN -->
-    <link rel="stylesheet" href="lib/leaflet/leaflet.css" />
-    <style>
-      body {
-        margin: 0;
-        padding: 0;
-      }
+<head>
+  <meta charset="utf-8" />
+  <title>Historic Topographic Maps</title>
+  <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
 
-      #map {
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        right: 0;
-        left: 0;
-      }
-    </style>
-    <script src="lib/leaflet/leaflet-src.js"></script>
-    <script src="lib/proj4/proj4.js"></script>
-    <script src="lib/proj4/proj4leaflet.js"></script>
-    <script src="lib/jslib.js"></script>
-  </head>
-  <body>
-    <input
-      type="button"
-      value="1.采集上图并进入编辑"
-      onclick="gatherPolyline()"
-      style="
+  <!-- Load Leaflet from CDN -->
+  <link rel="stylesheet" href="lib/leaflet/leaflet.css" />
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+    }
+
+    #map {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      right: 0;
+      left: 0;
+    }
+  </style>
+  <script src="lib/leaflet/leaflet-src.js"></script>
+  <script src="lib/proj4/proj4.js"></script>
+  <script src="lib/proj4/proj4leaflet.js"></script>
+  <script src="lib/jslib.js"></script>
+</head>
+
+<body>
+  <input type="button" value="1.采集上图并进入编辑" onclick="gatherPolyline()" style="
         cursor: pointer;
         position: absolute;
         left: 100px;
@@ -41,14 +39,9 @@
         color: white;
         border: none;
         font-size: 24px;
-      "
-    />
+      " />
 
-    <input
-      type="button"
-      value="1.根据数据上图并进入编辑"
-      onclick="drawPolylineByData()"
-      style="
+  <input type="button" value="1.根据数据上图并进入编辑" onclick="drawPolylineByData()" style="
         cursor: pointer;
         position: absolute;
         left: 100px;
@@ -58,16 +51,12 @@
         color: white;
         border: none;
         font-size: 24px;
-      "
-    />
+      " />
 
-    <textarea id="zbcValue" rows="10" cols="50" style="position: absolute; left: 100px; top: 150px; z-index: 9999"> </textarea>
+  <textarea id="zbcValue" rows="10" cols="50"
+    style="position: absolute; left: 100px; top: 150px; z-index: 9999"> </textarea>
 
-    <input
-      type="button"
-      value="线结束编辑并更新坐标数据"
-      onclick="endEditPolyline()"
-      style="
+  <input type="button" value="线结束编辑并更新坐标数据" onclick="endEditPolyline()" style="
         cursor: pointer;
         position: absolute;
         left: 100px;
@@ -77,97 +66,97 @@
         color: white;
         border: none;
         font-size: 24px;
-      "
-    />
-    <div id="map"></div>
+      " />
+  <div id="map"></div>
 
-    <script>
-      var map = L.map("map");
-      //https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}
-      //http://webrd04.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}
-      // new L.TileLayer("http://webrd04.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}", {
-      //   maxZoom: 20,
-      //   minZoom: 1,
-      //   attribution: "ⓒ 2012 Daum"
-      // }).addTo(map);
+  <script>
+    var map = L.map("map");
+    //https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}
+    //http://webrd04.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}
+    new L.TileLayer("http://webrd04.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}", {
+      maxZoom: 20,
+      minZoom: 1,
+      attribution: "ⓒ 2012 Daum"
+    }).addTo(map);
 
-      new L.TileLayer("http://112.48.26.30:24518/tdt/img_w/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=img&STYLE=default&TILEMATRIXSET=w&FORMAT=tiles&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&tk=1c3ba4a8a4094a2eca668565287fea98", {
-        maxZoom: 20,
-        minZoom: 1,
-        attribution: "ⓒ 2012 Daum"
-      }).addTo(map);
+    // new L.TileLayer("http://112.48.26.30:24518/tdt/img_w/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=img&STYLE=default&TILEMATRIXSET=w&FORMAT=tiles&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&tk=1c3ba4a8a4094a2eca668565287fea98", {
+    //   maxZoom: 20,
+    //   minZoom: 1,
+    //   attribution: "ⓒ 2012 Daum"
+    // }).addTo(map);
 
-      
 
-      [
-        [129.76020812988284, 46.72032856077598],
-        [129.74063873291018, 46.70031853924921],
-        [129.8178863525391, 46.68501175243325],
-        [129.8123931884766, 46.67252762304416]
-      ];
 
-      //112.5
-      //32.5
-      var center_point = [32.5, 112.5];
-      map.setView(center_point, 12);
+    [
+      [129.76020812988284, 46.72032856077598],
+      [129.74063873291018, 46.70031853924921],
+      [129.8178863525391, 46.68501175243325],
+      [129.8123931884766, 46.67252762304416]
+    ];
 
-      var gatherPolylineObj = null;
-      function gatherPolyline() {
-        let the = this;
-        let draw_polyline = new L.Draw.Polyline(this.map);
-        draw_polyline.addHooks();
-        map.on("draw:created", function (e) {
-          gatherPolylineObj = e.layer;
-          map.addLayer(gatherPolylineObj);
-          draw_polyline.removeHooks();
-          map.off("draw:created");
-          var zbc = gatherPolylineObj.getLatLngs();
-          updateZbcValue(zbc);
-          gatherPolylineObj.editing.enable();
-        });
-      }
-      function endEditPolyline() {
-        gatherPolylineObj.editing.disable();
-        this.map.off("mouseup");
+    //112.5
+    //32.5
+    var center_point = [32.5, 112.5];
+    map.setView(center_point, 12);
+
+    var gatherPolylineObj = null;
+    function gatherPolyline() {
+      let the = this;
+      let draw_polyline = new L.Draw.Polyline(this.map);
+      draw_polyline.addHooks();
+      map.on("draw:created", function (e) {
+        gatherPolylineObj = e.layer;
+        map.addLayer(gatherPolylineObj);
+        draw_polyline.removeHooks();
+        map.off("draw:created");
         var zbc = gatherPolylineObj.getLatLngs();
         updateZbcValue(zbc);
-      }
-
-      function drawPolylineByData() {
-        if (gatherPolylineObj) {
-          map.removeLayer(gatherPolylineObj);
-        }
-
-        let zbcValueStr = document.getElementById("zbcValue").value;
-        let zbcTemp = eval(zbcValueStr);
-        console.log("zbcTemp", zbcTemp);
-        let zbc = [];
-        for (let i = 0; i < zbcTemp.length; i++) {
-          let arr = [zbcTemp[i][1], zbcTemp[i][0]];
-          zbc.push(arr);
-        }
-        console.log("zbc", zbc);
-
-        gatherPolylineObj = L.polyline(zbc, {
-          color: "yellow",
-          weight: 3,
-          opacity: 1,
-          smoothFactor: 1
-        });
-        gatherPolylineObj.addTo(map);
         gatherPolylineObj.editing.enable();
+      });
+    }
+    function endEditPolyline() {
+      gatherPolylineObj.editing.disable();
+      this.map.off("mouseup");
+      var zbc = gatherPolylineObj.getLatLngs();
+      updateZbcValue(zbc);
+    }
+
+    function drawPolylineByData() {
+      if (gatherPolylineObj) {
+        map.removeLayer(gatherPolylineObj);
       }
 
-      function updateZbcValue(zbc) {
-        //console.log("线坐标：", zbc);
-        let zbcValueStr = "[";
-        for (let i = 0; i < zbc.length; i++) {
-          zbcValueStr += "[" + zbc[i].lng + "," + zbc[i].lat + "],";
-        }
-        zbcValueStr = zbcValueStr.substring(0, zbcValueStr.length - 1);
-        zbcValueStr += "]";
-        document.getElementById("zbcValue").value = zbcValueStr;
+      let zbcValueStr = document.getElementById("zbcValue").value;
+      let zbcTemp = eval(zbcValueStr);
+      console.log("zbcTemp", zbcTemp);
+      let zbc = [];
+      for (let i = 0; i < zbcTemp.length; i++) {
+        let arr = [zbcTemp[i][1], zbcTemp[i][0]];
+        zbc.push(arr);
       }
-    </script>
-  </body>
+      console.log("zbc", zbc);
+
+      gatherPolylineObj = L.polyline(zbc, {
+        color: "yellow",
+        weight: 3,
+        opacity: 1,
+        smoothFactor: 1
+      });
+      gatherPolylineObj.addTo(map);
+      gatherPolylineObj.editing.enable();
+    }
+
+    function updateZbcValue(zbc) {
+      //console.log("线坐标：", zbc);
+      let zbcValueStr = "[";
+      for (let i = 0; i < zbc.length; i++) {
+        zbcValueStr += "[" + zbc[i].lng + "," + zbc[i].lat + "],";
+      }
+      zbcValueStr = zbcValueStr.substring(0, zbcValueStr.length - 1);
+      zbcValueStr += "]";
+      document.getElementById("zbcValue").value = zbcValueStr;
+    }
+  </script>
+</body>
+
 </html>

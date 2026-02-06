@@ -1,16 +1,10 @@
 <template>
   <div id="cesiumContainer">
-    <button
-      style="position: absolute; left: 100px; top: 100px; z-index: 999"
-      @click="readKmlFun"
-    >
+    <button style="position: absolute; left: 100px; top: 100px; z-index: 999" @click="readKmlFun">
       KML数据加载
     </button>
 
-    <button
-      style="position: absolute; left: 100px; top: 150px; z-index: 999"
-      @click="removeKmlFun"
-    >
+    <button style="position: absolute; left: 100px; top: 150px; z-index: 999" @click="removeKmlFun">
       移除KML数据
     </button>
   </div>
@@ -21,7 +15,7 @@ import FFCesium from "FFCesium";
 let ffCesium = null;
 onMounted(() => {
   ffCesium = new FFCesium("cesiumContainer");
-  ffCesium.setView({
+  ffCesium.mapActionClass.setView({
     lng: 118.28164379,
     lat: 37.1808099,
     height: 10000000,

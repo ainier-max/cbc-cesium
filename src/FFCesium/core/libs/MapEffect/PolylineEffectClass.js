@@ -8,6 +8,10 @@ class PolylineEffectClass {
   removePolylineMovePointInfo = "移除线的移动点效果方法(removePolylineMovePoint)";
   addPolylineFlickerInfo = "叠加线的闪烁效果方法(addPolylineFlicker)";
   removePolylineFlickerInfo = "移除线的闪烁效果方法(removePolylineFlicker)";
+  addLineSegmentLabelInfo = "叠加线段标签效果方法(addLineSegmentLabel)";
+  removeLineSegmentLabelInfo = "移除线段标签效果方法(removeLineSegmentLabel)";
+  addPolylineFlowInfo = "叠加流动线效果方法(addPolylineFlow)";
+  removePolylineFlowInfo = "移除流动线效果方法(removePolylineFlow)";
   constructor(viewer) {
     this.viewer = viewer;
     this.polylineEffectLogic = new PolylineEffectLogic(viewer);

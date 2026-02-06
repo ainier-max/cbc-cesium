@@ -161,7 +161,7 @@ export const OverviewStore = defineStore("overviewID", {
         pitchRadiu: -50,
         time: 2
       };
-      this.ffCesium.flyTo(option, this.toLocationCallback);
+      this.ffCesium.mapActionClass.flyTo(option, this.toLocationCallback);
     },
     toLocationCallback() {
       console.log("完成定位");
@@ -180,7 +180,7 @@ export const OverviewStore = defineStore("overviewID", {
       if (this.overviewDataLayer[type]) {
         this.overviewDataLayer[type].forEach((element, index) => {
           try {
-            this.ffCesium.removeHtml(element);
+            this.ffCesium.elementClass.removeHtml(element);
           } catch (error) {
             console.log("removeMapLayer--error", error);
             if (error.toString().indexOf("removeChild") > 0) {
@@ -207,7 +207,7 @@ export const OverviewStore = defineStore("overviewID", {
             //经纬度坐标是真实存在
             if (lngLatHeight[0] && lngLatHeight[1]) {
               //获取高度
-              let heightTemp = await this.ffCesium.getHeightAtPoint(lngLatHeight);
+              let heightTemp = await this.ffCesium.mapUtilClass.getHeightAtPoint(lngLatHeight);
               lngLatHeight[2] = heightTemp;
               let idTemp = type + "_" + element.id;
               console.log("idTemp", idTemp);

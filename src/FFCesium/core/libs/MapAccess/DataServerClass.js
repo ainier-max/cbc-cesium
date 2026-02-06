@@ -4,6 +4,17 @@ import * as Cesium from "cesium"; // Import Cesium just in case, though usually 
 // Here Logic imports Cesium. Class accesses logic.
 
 class DataServerClass {
+    addObliquePhotographyInfo = "添加倾斜摄影服务方法(addObliquePhotography)";
+    removeObliquePhotographyInfo = "移除倾斜摄影方法(removeObliquePhotography)";
+    addTerrainInfo = "添加地形服务方法(addTerrain)";
+    removeTerrainInfo = "移除地形方法(removeTerrain)";
+    readGeojsonInfo = "解析GeoJSON数据方法(readGeojson)";
+    addGeojsonInfo = "添加GeoJSON数据方法(addGeojson)";
+    readKmlInfo = "解析KML数据方法(readKml)";
+    addKmlInfo = "添加KML数据方法(addKml)";
+    removeDataSourceInfo = "移除数据源方法(removeDataSource)";
+    addWmslayerInfo = "叠加WMS图层服务方法(addWmslayer)";
+    findWmsLayerInfo = "添加WMS图层方法(findWmsLayer)";
     constructor(viewer) {
         this.viewer = viewer;
         this.dataServerLogic = new DataServerLogic();

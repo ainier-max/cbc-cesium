@@ -2,6 +2,11 @@ import ElementLogic from "./LogicClass/ElementLogic.js";
 import * as Cesium from "cesium";
 
 export default class ElementClass {
+    addGroundLabelInfo = "添加贴地标签方法(addGroundLabel)";
+    removeGroundLabelInfo = "移除贴地标签方法(removeGroundLabel)";
+    addHtmlInfo = "叠加HTML元素方法(addHtml)";
+    addCylinderInfo = "添加圆柱体方法(addCylinder)";
+    removeHtmlInfo = "移除HTML元素方法(removeHtml)";
     constructor(viewer, cesiumID) {
         this.viewer = viewer;
         this.cesiumID = cesiumID;
