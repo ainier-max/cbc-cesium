@@ -52,7 +52,7 @@
     //let modelParam = modelDataArr[10]; //景阳交叉节制闸
     //let modelParam = modelDataArr[11]; //合作节制闸
     //let modelParam = modelDataArr[12];//双阳泵站
-    let modelParam = modelDataArr[13];//乌龙河交叉节制闸
+    //let modelParam = modelDataArr[13];//乌龙河交叉节制闸
     console.log("当前模型--modelParam", modelParam);
 
     viewer = mapClass.initMap("cesiumContainer");
