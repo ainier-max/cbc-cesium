@@ -75,6 +75,10 @@ const routes = [
     path: "/TileEditTool",
     component: () => import("@/MapSenior/TileEditTool/index.vue")
   },
+  {
+    path: "/CesiumForFluid",
+    component: () => import("@/MapSenior/CesiumForFluid/index.vue")
+  }
 ];
 const router = createRouter({
   history: createWebHashHistory(), // hash路由模式

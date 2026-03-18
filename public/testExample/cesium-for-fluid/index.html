@@ -1,0 +1,2627 @@
+<!DOCTYPE html>
+
+<head>
+    <title> Cesium for Fluid Example </title>
+    <!-- Use correct character set. -->
+    <meta charset="utf-8" />
+    <!-- Tell IE to use the latest, best version. -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <!-- Make the application on mobile take up the full browser screen and disable user scaling. -->
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no" />
+    <link href="https://cesium.com/downloads/cesiumjs/releases/1.129/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+    <script type="text/javascript"
+        src="https://cesium.com/downloads/cesiumjs/releases/1.129/Build/Cesium/Cesium.js"></script>
+    <!-- <script type="text/javascript"
+        src="https://cesium.com/downloads/cesiumjs/releases/1.129/Apps/Sandcastle/Sandcastle-header.js"></script>
+    <script type="text/javascript"
+        src="https://cesium.com/downloads/cesiumjs/releases/1.129/Apps/Sandcastle/Sandcastle-client.js"></script> -->
+
+    <style>
+        html,
+        body,
+        #sceneContainer {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background: #000;
+        }
+
+        .cesium-performanceDisplay-defaultContainer {
+            display: none;
+            top: 20px;
+            right: 10px;
+        }
+
+        #toolbar td {
+            color: white;
+            text-shadow:
+                -1px -1px 0 #000,
+                1px -1px 0 #000,
+                -1px 1px 0 #000,
+                1px 1px 0 #000;
+        }
+
+        #toolbar label {
+            color: white;
+            text-shadow:
+                -1px -1px 0 #000,
+                1px -1px 0 #000,
+                -1px 1px 0 #000,
+                1px 1px 0 #000;
+        }
+
+        #loadingOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        #loadingContent {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px 50px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        #loadingSpinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        #loadingText {
+            font-size: 16px;
+            color: #333;
+            font-weight: bold;
+        }
+
+        #legend {
+            position: absolute;
+            left: 20px;
+            bottom: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            min-width: 180px;
+        }
+
+        #legend .legend-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #fff;
+            padding-bottom: 5px;
+        }
+
+        #legend .legend-item {
+            display: flex;
+            align-items: center;
+            margin: 8px 0;
+        }
+
+        #legend .legend-color {
+            width: 30px;
+            height: 20px;
+            margin-right: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+        }
+
+        #legend .legend-label {
+            font-size: 13px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="sceneContainer"></div>
+    <div id="toolbar" style="position: absolute; left:20px;top: 20px; background: rgba(0,0,0,0.6); padding: 15px; border-radius: 5px; backdrop-filter: blur(5px);">
+        <div style="margin-bottom: 10px;">
+            <button id="setBoundaryBtn" style="padding: 5px 10px; cursor: pointer;width: 190px;">设置渲染边界</button>
+        </div>
+        <table>
+            <tbody>
+                <!-- <tr>
+                    <td>阈值</td>
+                    <td>
+                        <input type="range" min="0" max="500" step="0.0001"
+                            data-bind="value: param1, valueUpdate: 'input'">
+                        <input type="text" size="5" data-bind="value: param1">
+                    </td>
+                </tr>
+                <tr>
+                    <td>混合</td>
+                    <td>
+                        <input type="range" min="0" max="50" step="0.0001"
+                            data-bind="value: param2, valueUpdate: 'input'">
+                        <input type="text" size="5" data-bind="value: param2">
+                    </td>
+                </tr>
+                <tr>
+                    <td>光强</td>
+                    <td>
+                        <input type="range" min="0" max="10" step="0.0001"
+                            data-bind="value: param3, valueUpdate: 'input'">
+                        <input type="text" size="5" data-bind="value: param3">
+                    </td>
+                </tr> -->
+                <tr>
+                    <td>水扩散速度</td>
+                    <td>
+                        <input type="number" size="5" step="0.001" min="0" max="1" style="width: 80px;"
+                            data-bind="value: param4, valueUpdate: 'input'">
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>水源半径</td>
+                    <td>
+                        <input type="number" size="5" step="0.001" min="0" max="0.2" style="width: 80px;"
+                            data-bind="value: waterSourceRadius, valueUpdate: 'input'">
+                    </td>
+                </tr>
+                <tr>
+                    <td>水深颜色强度</td>
+                    <td>
+                        <input type="number" size="5" step="0.01" min="0" max="2" style="width: 80px;"
+                            data-bind="value: waterDepthColorIntensity, valueUpdate: 'input'">
+                    </td>
+                </tr>
+            
+            </tbody>
+        </table>
+        <div style="margin-top: 10px;">
+        </div>
+        <div style="margin-top: 10px;">
+            <label>
+                <input type="checkbox" id="allowFlowOutCheckbox" >
+                允许水流出边界
+            </label>
+        </div>
+        <div style="margin-top: 10px;">
+            <label>
+                <input type="checkbox" id="continuousFlowCheckbox" checked>
+                持续出水
+            </label>
+        </div>
+        <div style="margin-top: 5px;">
+            <label>流量(m³/s):</label>
+            <input type="number" id="flowRateInput" value="10000000" step="10000" min="0" max="999999999" style="width: 100px;">
+        </div>
+    </div>
+    <div id="infoPanel" style="position: absolute; right: 20px; top: 20px; background: rgba(0,0,0,0.7); color: white; padding: 15px; border-radius: 5px; font-family: monospace; min-width: 200px;">
+        <div style="font-weight: bold; margin-bottom: 10px; border-bottom: 1px solid #fff; padding-bottom: 5px;">水体信息</div>
+        <div>总水量: <span id="totalVolume">0.00</span> m³</div>
+        <div style="margin-top: 5px;">鼠标位置水深: <span id="waterDepth">--</span> m</div>
+    </div>
+    <!-- 水深图例 -->
+    <div id="legend">
+        <div class="legend-title">水深图例</div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: rgb(0, 102, 230);"></div>
+            <div class="legend-label">浅水 <span id="depth-range-1">0-0.03m</span></div>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: rgb(230, 230, 51);"></div>
+            <div class="legend-label">中浅 <span id="depth-range-2">0.03-0.07m</span></div>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: rgb(255, 128, 0);"></div>
+            <div class="legend-label">中深 <span id="depth-range-3">0.07-0.10m</span></div>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: rgb(230, 0, 0);"></div>
+            <div class="legend-label">深水 <span id="depth-range-4">>0.10m</span></div>
+        </div>
+    </div>
+    <!-- 加载提示遮罩层 -->
+    <div id="loadingOverlay">
+        <div id="loadingContent">
+            <div id="loadingSpinner"></div>
+            <div id="loadingText">正在加载地形数据，请稍候...</div>
+        </div>
+    </div>
+    <script id="cesium_sandcastle_script">
+
+        (async () => {
+            // 初始化
+            let viewer;
+            const init = async () => {
+                Cesium.Ion.defaultAccessToken =
+                    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIzNmI0MDRkZi04NzhjLTQyYmMtYjQxOC1iNzc2MDA1MmM4ZjIiLCJpZCI6OTAwMTAsImlhdCI6MTY1MDA3NTM0MX0.mGMDeDFon6i_AOEfTs3pEq30wRCipCWL3O-bzLHswtw";
+
+                viewer = new Cesium.Viewer('sceneContainer', {
+                    animation: false,
+                    timeline: false,
+                    baseLayerPicker: false,
+                    homeButton: false,
+                    geocoder: false,
+                    sceneModePicker: false,
+                    navigationHelpButton: false,
+                    showStatusBar: false,
+                    fullscreenButton: false,
+                    shouldAnimate: true,
+                    infoBox: false
+                });
+
+                // 自定义地形服务
+                viewer.terrainProvider = await Cesium.CesiumTerrainProvider.fromUrl('http://211.143.193.121:29091/FJDX', {
+                    requestWaterMask: false,
+                    requestVertexNormals: true,
+                });
+                // 配置
+                viewer.shadows = true; // 开启阴影
+                viewer.resolutionScale = 1.0; // 分辨率
+                viewer.scene.msaaSamples = 4; // msaa
+                viewer.scene.globe.depthTestAgainstTerrain = true; // 深度测试
+                viewer.scene.logarithmicDepthBuffer = true; // log深度
+                viewer.scene.highDynamicRange = true;
+                viewer.scene.debugShowFramesPerSecond = true;
+                viewer.clock.currentTime = Cesium.JulianDate.fromIso8601("2024-12-29T06:00:00Z");
+
+
+                // // 创建大气 
+                viewer.scene.fog.enabled = true;
+                viewer.scene.globe.showGroundAtmosphere = false;
+                viewer.scene.skyAtmosphere.show = false;
+                viewer.scene.globe.enableLighting = true;
+                viewer.scene.postProcessStages.add(createSkyEffect());
+
+
+                let waterFluid;
+                let waterSourceHandler;
+
+                // 初始化 viewModel（在点击按钮前就创建）
+                const viewModel = {
+                    param1: 10,
+                    param2: 20,
+                    param3: 0,
+                    param4: 0.1,
+                    waterSourceStrength: 0.03,
+                    waterSourceRadius: 0.02,
+                    waterDepthColorIntensity: 1.0,
+                    boundaryWidth: 10000,
+                    boundaryHeight: 10000,
+                };
+                Cesium.knockout.track(viewModel);
+                const toolbar = document.getElementById("toolbar");
+                Cesium.knockout.applyBindings(viewModel, toolbar);
+
+                // 更新图例显示的函数（全局定义）
+                function updateLegend(intensity) {
+                    // shader中: normalizedDepth = waterDepth * intensity * 10.0
+                    // 其中 waterDepth 是归一化值 [0,1]
+                    // 实际物理水深(米) = waterDepth(归一化) × heightScale(1000m)
+                    //
+                    // 反推：当 normalizedDepth = 0.33 时
+                    // waterDepth(归一化) = 0.33 / (intensity * 10.0)
+                    // 实际水深(米) = waterDepth(归一化) × 1000
+
+                    const heightScale = 1000; // dimensions.z = 1000m
+                    const factor = intensity * 10.0;
+
+                    const depth1 = (0.33 / factor * heightScale).toFixed(2);  // 蓝->黄分界点
+                    const depth2 = (0.66 / factor * heightScale).toFixed(2);  // 黄->橙分界点
+                    const depth3 = (1.0 / factor * heightScale).toFixed(2);   // 橙->红分界点
+
+                    document.getElementById('depth-range-1').textContent = `0-${depth1}m`;
+                    document.getElementById('depth-range-2').textContent = `${depth1}-${depth2}m`;
+                    document.getElementById('depth-range-3').textContent = `${depth2}-${depth3}m`;
+                    document.getElementById('depth-range-4').textContent = `>${depth3}m`;
+                }
+
+                // 初始化图例显示
+                updateLegend(viewModel.waterDepthColorIntensity);
+
+                // 绑定设置渲染边界按钮
+                document.getElementById("setBoundaryBtn").addEventListener("click", function () {
+                    let handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
+                    handler.setInputAction(async (movement) => {
+                        if (waterFluid) return;
+                        let cartesian = viewer.scene.pickPosition(movement.position);
+                        let cartographic = Cesium.Cartographic.fromCartesian(cartesian);
+                        let lon = Cesium.Math.toDegrees(cartographic.longitude);
+                        let lat = Cesium.Math.toDegrees(cartographic.latitude);
+
+                        {
+                                // 从 viewModel 读取边界尺寸
+                                const boundaryWidth = Number(viewModel.boundaryWidth);
+                                const boundaryHeight = Number(viewModel.boundaryHeight);
+
+                                // 显示加载遮罩层，禁用工具栏
+                                const loadingOverlay = document.getElementById('loadingOverlay');
+                                const toolbar = document.getElementById('toolbar');
+                                loadingOverlay.style.display = 'flex';
+                                toolbar.style.pointerEvents = 'none';
+                                toolbar.style.opacity = '0.5';
+
+                                console.log('正在预加载地形数据，请稍候...');
+
+                                // 计算边界范围内的采样点（网格采样）- 增加到64x64以获得更密集的采样
+                                const sampleSize = 64; // 64x64 网格采样 = 4096个点
+                                const positions = [];
+                                for (let i = 0; i < sampleSize; i++) {
+                                    for (let j = 0; j < sampleSize; j++) {
+                                        const offsetX = (i / (sampleSize - 1) - 0.5) * boundaryWidth;
+                                        const offsetY = (j / (sampleSize - 1) - 0.5) * boundaryHeight;
+
+                                        // 将米转换为度（粗略估算）
+                                        const lonOffset = offsetX / 111320; // 1度经度约111320米
+                                        const latOffset = offsetY / 110540; // 1度纬度约110540米
+
+                                        positions.push(Cesium.Cartographic.fromDegrees(
+                                            lon + lonOffset,
+                                            lat + latOffset
+                                        ));
+                                    }
+                                }
+
+                                // 使用 sampleTerrainMostDetailed 预加载地形
+                                try {
+                                    await Cesium.sampleTerrainMostDetailed(viewer.terrainProvider, positions);
+                                    console.log('地形数据加载完成，共采样 ' + positions.length + ' 个点');
+
+                                    // 飞到目标区域确保地形瓦片加载
+                                    await viewer.camera.flyTo({
+                                        destination: Cesium.Cartesian3.fromDegrees(lon, lat, boundaryHeight * 2),
+                                        duration: 0.1,
+                                        orientation: {
+                                            heading: 0,
+                                            pitch: Cesium.Math.toRadians(-90),
+                                            roll: 0
+                                        }
+                                    });
+
+                                    // 等待地形瓦片完全加载
+                                    await new Promise(resolve => {
+                                        const checkTiles = () => {
+                                            if (viewer.scene.globe.tilesLoaded) {
+                                                resolve();
+                                            } else {
+                                                setTimeout(checkTiles, 100);
+                                            }
+                                        };
+                                        checkTiles();
+                                    });
+
+                                    console.log('地形瓦片加载完成');
+                                } catch (error) {
+                                    console.warn('地形数据加载失败，将使用当前可用数据:', error);
+                                } finally {
+                                    // 隐藏加载遮罩层，恢复工具栏
+                                    loadingOverlay.style.display = 'none';
+                                    toolbar.style.pointerEvents = 'auto';
+                                    toolbar.style.opacity = '1';
+                                }
+
+                                waterFluid = new FluidRenderer(viewer, {
+                                    lonLat: [lon, lat],
+                                    // 纹理尺寸
+                                    width: 1024,
+                                    height: 1024,
+                                    // 渲染范围 - 使用用户设置的边界尺寸
+                                    dimensions: new Cesium.Cartesian3(boundaryWidth, boundaryHeight, 1000),
+                                    // 归一化高度 最大高与上面的z对齐
+                                    minHeight: 0,
+                                    maxHeight: 1000
+                                });
+
+                                // 初始化持续出水开始时间（因为默认开启持续出水）
+                                waterFluid._continuousFlowStartTime = performance.now() / 1000;
+
+                                // 定义参数更新函数
+                                function updateParam() {
+                                    if (!waterFluid) return;
+                                    waterFluid.config.customParams.x = Number(viewModel.param1);
+                                    waterFluid.config.customParams.y = Number(viewModel.param2);
+                                    waterFluid.config.customParams.z = Number(viewModel.param3);
+                                    waterFluid._waterSourceStrength = Number(viewModel.param4);
+                                    waterFluid._waterSourceStrength = Number(viewModel.waterSourceStrength);
+                                    waterFluid._waterSourceRadius = Number(viewModel.waterSourceRadius);
+                                    waterFluid._waterDepthColorIntensity = Number(viewModel.waterDepthColorIntensity);
+
+                                    // 更新图例
+                                    updateLegend(waterFluid._waterDepthColorIntensity);
+
+                                    // 更新边界尺寸
+                                    const newWidth = Number(viewModel.boundaryWidth);
+                                    const newHeight = Number(viewModel.boundaryHeight);
+                                    if (newWidth !== waterFluid.config.dimensions.x || newHeight !== waterFluid.config.dimensions.y) {
+                                        waterFluid.updateBoundaryDimensions(newWidth, newHeight);
+                                    }
+                                }
+
+                                // 订阅参数变化
+                                for (const name in viewModel) {
+                                    if (viewModel.hasOwnProperty(name)) {
+                                        Cesium.knockout.getObservable(viewModel, name).subscribe(updateParam);
+                                    }
+                                }
+
+                                // 添加鼠标点击添加水源功能
+                                waterSourceHandler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
+                                waterSourceHandler.setInputAction((movement) => {
+                                    if (waterFluid._continuousFlow) {
+                                        // 设置持续出水位置
+                                        const cartesian = viewer.scene.pickPosition(movement.position);
+                                        if (Cesium.defined(cartesian)) {
+                                            const center = Cesium.Cartesian3.fromDegrees(...waterFluid.config.lonLat, 0);
+                                            const enuMatrix = Cesium.Transforms.eastNorthUpToFixedFrame(center);
+                                            const inverseEnu = Cesium.Matrix4.inverse(enuMatrix, new Cesium.Matrix4());
+                                            const localPos = Cesium.Matrix4.multiplyByPoint(inverseEnu, cartesian, new Cesium.Cartesian3());
+                                            const normalizedU = (localPos.x / waterFluid.config.dimensions.x) + 0.5;
+                                            const normalizedV = 1.0 - ((localPos.y / waterFluid.config.dimensions.y) + 0.5);
+                                            waterFluid._continuousSourcePos = new Cesium.Cartesian2(normalizedU, normalizedV);
+                                            waterFluid._continuousFlowStartTime = performance.now() / 1000;
+                                            console.log(`持续出水位置已设置 UV: (${normalizedU.toFixed(3)}, ${normalizedV.toFixed(3)})`);
+                                            console.log(`持续出水状态: ${waterFluid._continuousFlow}, 流量: ${waterFluid._flowRate} m³/s`);
+                                            console.log(`deltaTime: ${waterFluid._deltaTime.toFixed(4)}s`);
+                                        }
+                                    } else {
+                                        waterFluid.addWaterSource(movement.position);
+                                    }
+                                }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+
+                                // 鼠标移动显示水深（添加节流）
+                                let lastMouseMoveTime = 0;
+                                waterSourceHandler.setInputAction((movement) => {
+                                    const now = Date.now();
+                                    if (now - lastMouseMoveTime < 100) return; // 节流：每100ms更新一次
+                                    lastMouseMoveTime = now;
+
+                                    try {
+                                        const depth = waterFluid.getWaterDepthAtScreen(movement.endPosition);
+                                        if (depth !== null && depth > 0.001) {
+                                            document.getElementById('waterDepth').textContent = depth.toFixed(3);
+                                        } else {
+                                            document.getElementById('waterDepth').textContent = '--';
+                                        }
+                                    } catch (e) {
+                                        document.getElementById('waterDepth').textContent = '--';
+                                    }
+                                }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+
+                                // 绑定复选框事件
+                                document.getElementById('allowFlowOutCheckbox').addEventListener('change', function() {
+                                    waterFluid._allowFlowOut = this.checked;
+                                    console.log('允许水流出边界:', this.checked);
+                                });
+
+                                document.getElementById('continuousFlowCheckbox').addEventListener('change', function() {
+                                    waterFluid._continuousFlow = this.checked;
+                                    console.log('持续出水:', this.checked);
+                                    if (this.checked) {
+                                        waterFluid._continuousFlowStartTime = performance.now() / 1000;
+                                    } else {
+                                        waterFluid._continuousSourcePos = new Cesium.Cartesian2(-1, -1);
+                                        waterFluid._continuousFlowStartTime = 0;
+                                    }
+                                });
+
+                                document.getElementById('flowRateInput').addEventListener('input', function() {
+                                    waterFluid._flowRate = parseFloat(this.value);
+                                    waterFluid._waterSourceStrength = parseFloat(this.value); // 单次点击量等于流量
+                                    console.log('流量设置为:', waterFluid._flowRate, 'm³/s');
+                                    console.log('单次点击量:', waterFluid._waterSourceStrength, 'm³');
+                                });
+                            }
+
+                        handler.destroy();
+                    }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+                });
+
+                // 定位到厦门
+                viewer.camera.setView({
+                    destination: Cesium.Cartesian3.fromDegrees(118.1, 24.5, 50000),
+                    orientation: {
+                        heading: Cesium.Math.toRadians(0),
+                        pitch: Cesium.Math.toRadians(-45),
+                        roll: 0.0
+                    }
+                });
+            }
+
+            /**
+             * @description 多缓冲区计算
+             */
+            const Command = `
+// cesium for fluid by mind3d , fluid demo from https://www.shadertoy.com/view/7tSSDD
+const int textureSize = 1024;
+// Render
+const vec3 backgroundColor = vec3(0.2);
+// Terrain
+uniform sampler2D boundaryMask;
+uniform float allowFlowOut;
+const float transitionTime = 5.0;
+const float transitionPercent = 0.3;
+const int octaves = 7;
+// Water simulation
+// const float attenuation = 0.995;
+// const float strenght = 0.25;
+ const float minTotalFlow = 0.0001;
+const float initialWaterLevel = 0.03;
+uniform vec4 fluidParam;
+uniform vec4 customParam;
+uniform float waterSize;
+
+mat2 rot(in float ang) 
+{
+   return mat2(
+			cos(ang), -sin(ang),
+			sin(ang),  cos(ang));
+}
+
+// hash from Dave_Hoskins https://www.shadertoy.com/view/4djSRW
+float hash12(vec2 p)
+{
+	vec3 p3  = fract(vec3(p.xyx) * .1031);
+    p3 += dot(p3, p3.yzx + 33.33);
+    return fract((p3.x + p3.y) * p3.z);
+}
+
+float hash13(vec3 p3)
+{
+	p3  = fract(p3 * .1031);
+    p3 += dot(p3, p3.zyx + 31.32);
+    return fract((p3.x + p3.y) * p3.z);
+}
+
+// Box intersection by IQ https://iquilezles.org/articles/boxfunctions
+
+vec2 boxIntersection( in vec3 ro, in vec3 rd, in vec3 rad, out vec3 oN ) 
+{
+    vec3 m = 1.0 / rd;
+    vec3 n = m * ro;
+    vec3 k = abs(m) * rad;
+    vec3 t1 = -n - k;
+    vec3 t2 = -n + k;
+
+    float tN = max( max( t1.x, t1.y ), t1.z );
+    float tF = min( min( t2.x, t2.y ), t2.z );
+	
+    if( tN > tF || tF < 0.0) return vec2(-1.0); // no intersection
+    
+    oN = -sign(rd)*step(t1.yzx, t1.xyz) * step(t1.zxy, t1.xyz);
+
+    return vec2( tN, tF );
+}
+
+vec2 hitBox(vec3 orig, vec3 dir) {
+    const vec3 box_min = vec3(-0.5);
+    const vec3 box_max = vec3(0.5);
+    vec3 inv_dir = 1.0 / dir;
+    vec3 tmin_tmp = (box_min - orig) * inv_dir;
+    vec3 tmax_tmp = (box_max - orig) * inv_dir;
+    vec3 tmin = min(tmin_tmp, tmax_tmp);
+    vec3 tmax = max(tmin_tmp, tmax_tmp);
+    float t0 = max(tmin.x, max(tmin.y, tmin.z));
+    float t1 = min(tmax.x, min(tmax.y, tmax.z));
+    return vec2(t0, t1);
+}
+
+// Fog by IQ https://iquilezles.org/articles/fog
+
+vec3 applyFog( in vec3  rgb, vec3 fogColor, in float distance)
+{
+    float fogAmount = exp( -distance );
+    return mix( fogColor, rgb, fogAmount );
+}
+`;
+
+            // 计算地形和更新水位的一个pass
+            const BufferA = `
+// compute Terrain and update water level 1st pass
+uniform sampler2D iChannel0;
+uniform sampler2D iChannel1;
+uniform sampler2D heightMap;
+uniform float     iTime;
+uniform int     iFrame;
+uniform vec2     center;
+uniform float   playTime;
+uniform vec2    resolution;
+uniform float     minHeight;
+uniform float     maxHeight;
+uniform vec2     waterSourcePos;
+uniform float    waterSourceRadius;
+uniform float    waterSourceStrength;
+uniform float    continuousFlow;
+uniform vec2     continuousSourcePos;
+uniform float    flowRate;
+uniform float    deltaTime;
+uniform float    flowToNormalized; // 流量转换系数：m³/s 到归一化深度
+uniform float    clickVolumeToNormalized; // 单次点击体积转换系数：m³ 到归一化深度
+float boxNoise( in vec2 p, in float z )
+{
+    vec2 fl = floor(p);
+    vec2 fr = fract(p);
+    fr = smoothstep(0.0, 1.0, fr);
+    float res = mix(mix( hash13(vec3(fl, z)),             hash13(vec3(fl + vec2(1,0), z)),fr.x),
+                    mix( hash13(vec3(fl + vec2(0,1), z)), hash13(vec3(fl + vec2(1,1), z)),fr.x),fr.y);
+    return res;
+}
+
+float Terrain( in vec2 p, in float z, in int octaveNum)
+{
+	float a = 1.0;
+	float f = .0;
+	for (int i = 0; i < octaveNum; i++)
+	{
+		f += a * boxNoise(p, z);
+		a *= 0.45;
+		p = 2.0 * rot(radians(41.0)) * p;
+	}
+	return f;
+}
+
+vec2 readHeight(ivec2 p)
+{
+	p = clamp(p, ivec2(0), ivec2(textureSize - 1));
+	return texelFetch(iChannel0, p, 0).xy;
+}
+
+vec4 readOutFlow(ivec2 p)
+{
+	if(p.x < 0 || p.y < 0 || p.x >= textureSize || p.y >= textureSize)
+		return vec4(0);
+	return texelFetch(iChannel1, p, 0);
+}
+void main( )
+{
+    // Outside ?
+    if( max(gl_FragCoord.x, gl_FragCoord.y) > float(textureSize) )
+        discard;
+
+    // Terrain
+    vec2 uv = gl_FragCoord.xy / float(textureSize);
+
+    // 检查边界遮罩
+    float maskValue = texture(boundaryMask, uv).r;
+
+    float t = iTime / transitionTime;
+    // float terrainElevation = mix(Terrain(uv * 4.0, floor(t), octaves), Terrain(uv * 4.0, floor(t) + 1.0, octaves), smoothstep(1.0 - transitionPercent, 1.0, fract(t))) * 0.5;
+
+    float terrainElevation = texture(heightMap, uv).r;
+    terrainElevation = (terrainElevation - (minHeight)) / (maxHeight - (minHeight));
+
+    // Water
+    // 根据鼠标点击位置添加水源
+    float waterDept = 0.0;
+
+    // 计算当前像素到水源点的距离
+    float dist = length(uv - waterSourcePos);
+    if(dist < waterSourceRadius) {
+        // 在水源半径内添加水（不受边界限制）
+        // waterSourceStrength: m³ (单次点击的总体积)
+        // clickVolumeToNormalized: 将体积转换为归一化深度
+        float falloff = 1.0 - (dist / waterSourceRadius);
+        waterDept = waterSourceStrength * clickVolumeToNormalized * falloff * falloff;
+    }
+
+    // 持续出水
+    if(continuousFlow > 0.5) {
+        float contDist = length(uv - continuousSourcePos);
+        if(contDist < waterSourceRadius) {
+            float falloff = 1.0 - (contDist / waterSourceRadius);
+            // 使用精确的单位系统
+            // flowRate: m³/s (用户设置的流量)
+            // deltaTime: s (帧时间间隔)
+            // flowToNormalized: 1m³水在一个像素上的归一化深度
+            // falloff: 径向衰减，使水源中心流量最大
+            waterDept += flowRate * deltaTime * flowToNormalized * falloff * falloff;
+        }
+    }
+
+    if(iFrame != 0)
+    {
+        ivec2 p = ivec2(gl_FragCoord.xy);
+        vec2 height = readHeight(p);
+        vec4 OutFlow = texelFetch(iChannel1, p, 0);
+        float totalOutFlow = OutFlow.x + OutFlow.y + OutFlow.z + OutFlow.w;
+        float totalInFlow = 0.0;
+        totalInFlow += readOutFlow(p  + ivec2( 1,  0)).z;
+        totalInFlow += readOutFlow(p  + ivec2( 0,  1)).w;
+        totalInFlow += readOutFlow(p  + ivec2(-1,  0)).x;
+        totalInFlow += readOutFlow(p  + ivec2( 0, -1)).y;
+        waterDept += height.y - totalOutFlow + totalInFlow;
+
+        // 边界外的水快速消失
+        if(allowFlowOut < 0.5 && maskValue < 0.5) {
+            // 在边界外，水根据流速快速消失
+            // 消失速度与总流出量成正比
+            float dissipationRate = 0.95; // 每帧保留95%，即每帧消失5%
+            waterDept *= dissipationRate;
+        }
+    }
+    out_FragColor = vec4(terrainElevation, waterDept, 0, 1);
+}
+`;
+
+            // 更新流出量的pass
+            const BufferB = `
+// Update Outflow 1st pass
+uniform sampler2D iChannel0;
+uniform sampler2D iChannel1;
+uniform float     iTime;
+uniform int     iFrame;
+vec2 readHeight(ivec2 p)
+{
+	p = clamp(p, ivec2(0), ivec2(textureSize - 1));
+	return texelFetch(iChannel0, p, 0).xy;
+} 
+
+float computeOutFlowDir(vec2 centerHeight, ivec2 pos)
+{
+	vec2 dirHeight = readHeight(pos);
+	// 检查目标位置的边界遮罩
+	vec2 targetUV = vec2(pos) / float(textureSize);
+	float targetMask = texture(boundaryMask, targetUV).r;
+	// 如果不允许流出且目标位置在边界外，阻止流动
+	if(allowFlowOut < 0.5 && targetMask < 0.5) return 0.0;
+	return max(0.0f, (centerHeight.x + centerHeight.y) - (dirHeight.x + dirHeight.y));
+}
+
+void main()
+{
+    ivec2 p = ivec2(gl_FragCoord.xy);
+    // Init to zero at frame 0
+    if(iFrame == 0)
+    {
+        out_FragColor = vec4(0);
+        return;
+    }    
+    
+    // Outside ?
+    if( max(p.x, p.y) > textureSize )
+        discard;
+        
+    
+   	vec4 oOutFlow = texelFetch(iChannel1, p, 0);
+	vec2 height = readHeight(p);
+	vec4 nOutFlow;        
+	nOutFlow.x = computeOutFlowDir(height, p + ivec2( 1,  0));
+	nOutFlow.y = computeOutFlowDir(height, p + ivec2( 0,  1));
+	nOutFlow.z = computeOutFlowDir(height, p + ivec2(-1,  0));
+	nOutFlow.w = computeOutFlowDir(height, p + ivec2( 0, -1));
+	nOutFlow = fluidParam.x * oOutFlow + fluidParam.y * nOutFlow;
+	float totalFlow = nOutFlow.x + nOutFlow.y + nOutFlow.z + nOutFlow.w;
+	if(totalFlow > fluidParam.z)
+	{
+		if(height.y < totalFlow)
+		{
+			nOutFlow = nOutFlow * (height.y / totalFlow);
+		}
+	}
+	else
+	{
+		nOutFlow = vec4(0);
+	}
+
+
+    out_FragColor = nOutFlow;
+}
+`;
+
+            // 水位计算的第二个pass
+            const BufferC = `
+// water level 2nd pass
+uniform sampler2D iChannel0;
+uniform sampler2D iChannel1;
+uniform float     iTime;
+uniform int     iFrame;
+vec2 readHeight(ivec2 p)
+{
+	p = clamp(p, ivec2(0), ivec2(textureSize - 1));
+	return texelFetch(iChannel0, p, 0).xy;
+} 
+
+vec4 readOutFlow(ivec2 p)
+{
+	if(p.x < 0 || p.y < 0 || p.x >= textureSize || p.y >= textureSize)
+		return vec4(0);
+	return texelFetch(iChannel1, p, 0);
+} 
+
+void main( )
+{
+    // Outside ?
+    if( max(gl_FragCoord.x, gl_FragCoord.y) > float(textureSize) )
+        discard;
+           
+    // Water
+    ivec2 p = ivec2(gl_FragCoord.xy);
+    vec2 height = readHeight(p);
+    vec4 OutFlow = texelFetch(iChannel1, p, 0);
+    float totalOutFlow = OutFlow.x + OutFlow.y + OutFlow.z + OutFlow.w;
+    float totalInFlow = 0.0;
+    totalInFlow += readOutFlow(p  + ivec2( 1,  0)).z;
+    totalInFlow += readOutFlow(p  + ivec2( 0,  1)).w;
+    totalInFlow += readOutFlow(p  + ivec2(-1,  0)).x;
+    totalInFlow += readOutFlow(p  + ivec2( 0, -1)).y;
+    float waterDept = height.y - totalOutFlow + totalInFlow;
+
+    out_FragColor = vec4(height.x, waterDept, 0, 1);
+}
+`;
+
+            // 更新流出量的 第二个pass
+            const BufferD = `
+// Update Outflow 2nd pass
+uniform sampler2D iChannel0;
+uniform sampler2D iChannel1;
+uniform float     iTime;
+uniform int     iFrame;
+vec2 readHeight(ivec2 p)
+{
+	p = clamp(p, ivec2(0), ivec2(textureSize - 1));
+	return texelFetch(iChannel0, p, 0).xy;
+} 
+
+float computeOutFlowDir(vec2 centerHeight, ivec2 pos)
+{
+	vec2 dirHeight = readHeight(pos);
+	// 检查目标位置的边界遮罩
+	vec2 targetUV = vec2(pos) / float(textureSize);
+	float targetMask = texture(boundaryMask, targetUV).r;
+	// 如果不允许流出且目标位置在边界外，阻止流动
+	if(allowFlowOut < 0.5 && targetMask < 0.5) return 0.0;
+	return max(0.0f, (centerHeight.x + centerHeight.y) - (dirHeight.x + dirHeight.y));
+}
+
+void main( )
+{
+    ivec2 p = ivec2(gl_FragCoord.xy);
+    
+    // Outside ?
+    if( max(p.x, p.y) > textureSize )
+        discard;
+        
+    
+   	vec4 oOutFlow = texelFetch(iChannel1, p, 0);
+	vec2 height = readHeight(p);
+	vec4 nOutFlow;        
+	nOutFlow.x = computeOutFlowDir(height, p + ivec2( 1,  0));
+	nOutFlow.y = computeOutFlowDir(height, p + ivec2( 0,  1));
+	nOutFlow.z = computeOutFlowDir(height, p + ivec2(-1,  0));
+	nOutFlow.w = computeOutFlowDir(height, p + ivec2( 0, -1));
+	nOutFlow = fluidParam.x * oOutFlow + fluidParam.y * nOutFlow;
+	float totalFlow = nOutFlow.x + nOutFlow.y + nOutFlow.z + nOutFlow.w;
+	if(totalFlow > fluidParam.z)
+	{
+		if(height.y < totalFlow)
+		{
+			nOutFlow = nOutFlow * (height.y / totalFlow);
+		}
+	}
+	else
+	{
+		nOutFlow = vec4(0);
+	}
+
+
+    out_FragColor = nOutFlow;
+}
+`;
+            // 默认体渲染，水体效果和地形部分有待完善
+            const renderShaderSource = `
+// Created by David Gallardo - xjorma/2021
+// License Creative Commons Attribution-NonCommercial-ShareAlike 3.0
+#define AA
+#define GAMMA 1
+uniform sampler2D iChannel0;
+uniform sampler2D heightMap;
+uniform sampler2D colorTexture;
+uniform vec2     iResolution;
+uniform float     iTime;
+uniform int     iFrame;
+uniform float    waterDepthColorIntensity;
+in vec3 vo;
+in vec3 vd;
+in vec2 v_st;
+const vec3 light = vec3(0.,4.,2.);
+const vec3 boxSize = vec3(0.5);
+
+// 水深颜色映射函数：蓝(浅) -> 黄 -> 橙 -> 红(深)
+vec3 getDepthColor(float waterDepth) {
+    // 归一化水深值到 [0, 1] 范围
+    float normalizedDepth = clamp(waterDepth * waterDepthColorIntensity * 10.0, 0.0, 1.0);
+
+    vec3 color1 = vec3(0.0, 0.4, 0.9);  // 蓝色 (浅水)
+    vec3 color2 = vec3(0.9, 0.9, 0.2);  // 黄色
+    vec3 color3 = vec3(1.0, 0.5, 0.0);  // 橙色
+    vec3 color4 = vec3(0.9, 0.0, 0.0);  // 红色 (深水)
+
+    vec3 color;
+    if (normalizedDepth < 0.33) {
+        color = mix(color1, color2, normalizedDepth * 3.0);
+    } else if (normalizedDepth < 0.66) {
+        color = mix(color2, color3, (normalizedDepth - 0.33) * 3.0);
+    } else {
+        color = mix(color3, color4, (normalizedDepth - 0.66) * 3.0);
+    }
+
+    return color;
+}
+
+// 获取指定位置的水深值
+float getWaterDepth(in vec3 p) {
+    p = (p + 1.0) - 0.5;
+    vec2 p2 = p.xz * vec2(float(textureSize)) / iResolution.xy;
+    p2 = min(p2, vec2(float(textureSize) - 0.5) / iResolution.xy);
+    vec2 h = texture(iChannel0, p2).xy;
+    // h.y 是水深
+    return h.y;
+}
+
+vec2 getHeight(in vec3 p)
+{
+    p = (p + 1.0) - 0.5;
+    vec2 p2 = p.xz * vec2(float(textureSize)) / iResolution.xy;
+    p2 = min(p2, vec2(float(textureSize) - 0.5) / iResolution.xy);
+    vec2 h = texture(iChannel0, p2 ).xy; // * 1.33333
+    h.y += h.x;
+	return h - boxSize.z;
+} 
+
+vec3 getNormal(in vec3 p, int comp)
+{
+    float d = 2.0 / float(textureSize);
+    float hMid = getHeight(p)[comp];
+    float hRight = getHeight(p + vec3(d, 0, 0))[comp];
+    float hTop = getHeight(p + vec3(0, 0, d))[comp];
+    return normalize(cross(vec3(0, hTop - hMid, d), vec3(d, hRight - hMid, 0)));
+}
+
+vec3 terrainColor(in vec3 p, in vec3 n, out float spec)
+{
+    // spec = 0.1;
+    // vec3 c = vec3(0.21, 0.50, 0.07);
+    // float cliff = smoothstep(0.8, 0.3, n.y);
+    // c = mix(c, vec3(0.25), cliff);
+    // spec = mix(spec, 0.3, cliff);
+    // float snow = smoothstep(0.05, 0.25, p.y) * smoothstep(0.5, 0.7, n.y);
+    // c = mix(c, vec3(0.95, 0.95, 0.85), snow);
+    // spec = mix(spec, 0.4, snow);
+    // vec3 t = texture(iChannel1, p.xz * 5.0).xyz;
+    // return mix(c, c * t, 0.75);
+    return texture(heightMap, p.xz).yzw;
+}
+
+vec3 undergroundColor(float d)
+{
+    vec3 color[4] = vec3[](vec3(0.5, 0.45, 0.5), vec3(0.40, 0.35, 0.25), vec3(0.55, 0.50, 0.4), vec3(0.45, 0.30, 0.20));
+    d *= 6.0;
+    d = min(d, 3.0 - 0.001);
+    float fr = fract(d);
+    float fl = floor(d);
+    return mix(color[int(fl)], color[int(fl) + 1], fr);
+}
+
+
+vec3 Render(in vec3 ro, in vec3 rd)
+{
+
+    vec3 n;
+    vec2 ret = boxIntersection(ro, rd, boxSize, n);
+    vec2 uv = gl_FragCoord.xy / czm_viewport.zw;
+    if(ret.x > 0.0)
+    {
+        vec3 pi = ro + rd * ret.x;
+        // Find Terrain
+        vec3 tc;
+        vec3 tn;
+        float tt = ret.x;
+        vec2 h = getHeight(pi);
+        float spec;
+        if(pi.y < h.x)
+        {
+            tn = n;
+            tc = undergroundColor(h.x - pi.y);
+        }
+        else
+        {
+            for (int i = 0; i < 80; i++)
+            {
+                vec3 p = ro + rd * tt;
+                float h = p.y - getHeight(p).x;
+                if (h < 0.0002 || tt > ret.y)
+                    break;
+                tt += h * 0.1;
+            }
+            // tn = getNormal(ro + rd * tt, 0);
+            // tc = terrainColor(ro + rd * tt, tn, spec);
+            vec3 p =  ro + rd * tt;
+            p = (p + 1.0) - 0.5;
+            // tc = texture(heightMap, p.xz).yzw * czm_lightColor;
+            vec2 uv = gl_FragCoord.xy / czm_viewport.zw;
+            tc = texture(colorTexture, uv).rgb;
+        }
+        
+        {
+            // vec3 lightDir = czm_sunDirectionEC;
+            // tc = tc * (max( 0.0, dot(lightDir, tn)) + 0.3);
+            // spec *= pow(max(0., dot(lightDir, reflect(rd, tn))), 10.0);
+            // tc += spec;            
+        }
+        
+        if(tt > ret.y) {
+            // tc = vec3(0, 0, 0.4);
+            tc = texture(colorTexture, uv).rgb;
+        }
+        
+        // Find Water
+        float wt = ret.x;
+        h = getHeight(pi);
+        vec3 waterNormal;
+        if(pi.y < h.y)
+        {
+            waterNormal = n;
+        }
+        else
+        {
+            for (int i = 0; i < 80; i++)
+            {
+                vec3 p = ro + rd * wt;
+                float h = p.y - getHeight(p).y;
+                if (h < 0.0002 || wt > min(tt, ret.y))
+                    break;
+                wt += h * 0.1;
+            }
+            waterNormal = getNormal(ro + rd * wt, 1);
+        }
+        
+        if(wt < ret.y)
+        {
+            float dist = (min(tt, ret.y) - wt);
+            vec3 waterPos = ro + rd * wt;
+            vec3 lightDir = normalize(light - (ro + rd * tt));
+
+            // 获取水面位置的实际水深值
+            float actualWaterDepth = getWaterDepth(waterPos);
+
+            // 使用实际水深值进行颜色映射
+            vec3 depthColor = getDepthColor(actualWaterDepth);
+            vec3 color = depthColor;
+
+            tc = applyFog( tc, color, dist * customParam.x);
+            float spec = pow(max(0., dot(lightDir, reflect(rd, waterNormal))),customParam.y);
+            tc += customParam.z * spec * smoothstep(0.0, 0.1, dist);
+        }else{
+            discard;
+        }
+        return tc;
+    }
+    discard;
+}
+
+
+vec3 vignette(vec3 color, vec2 q, float v)
+{
+    color *= 0.3 + 0.8 * pow(16.0 * q.x * q.y * (1.0 - q.x) * (1.0 - q.y), v);
+    return color;
+}
+
+
+void main()
+{
+	vec3 tot = vec3(0.0);
+    vec3 rayDir = normalize(vd);
+    vec3 col = Render(vo, rayDir);
+    tot += col;
+	out_FragColor = vec4( tot, 1.0 );
+}
+`;
+            /**
+             * @description 自定义DC
+             */
+            class CustomPrimitive {
+                constructor(options) {
+                    this.commandType = options.commandType;
+
+                    this.geometry = options.geometry;
+                    this.attributeLocations = options.attributeLocations;
+                    this.primitiveType = options.primitiveType;
+
+                    this.uniformMap = options.uniformMap;
+
+                    this.vertexShaderSource = options.vertexShaderSource;
+                    this.fragmentShaderSource = options.fragmentShaderSource;
+
+                    this.rawRenderState = options.rawRenderState;
+                    this.framebuffer = options.framebuffer;
+                    this.isPostRender = options.isPostRender;
+
+                    this.outputTexture = options.outputTexture;
+
+                    this.autoClear = Cesium.defaultValue(options.autoClear, false);
+                    this.preExecute = options.preExecute;
+
+                    this.modelMatrix = Cesium.defaultValue(options.modelMatrix, Cesium.Matrix4.IDENTITY);
+                    this.show = true;
+                    this.commandToExecute = undefined;
+                    this.clearCommand = undefined;
+                    if (this.autoClear) {
+                        this.clearCommand = new Cesium.ClearCommand({
+                            color: new Cesium.Color(0.0, 0.0, 0.0, 0.0),
+                            depth: 1.0,
+                            framebuffer: this.framebuffer,
+                            pass: Cesium.Pass.OPAQUE
+                        });
+                    }
+                }
+
+                createCommand(context) {
+                    switch (this.commandType) {
+                        case 'Draw': {
+                            let vertexArray = Cesium.VertexArray.fromGeometry({
+                                context: context,
+                                geometry: this.geometry,
+                                attributeLocations: this.attributeLocations,
+                                bufferUsage: Cesium.BufferUsage.STATIC_DRAW,
+                            });
+
+                            let shaderProgram = Cesium.ShaderProgram.fromCache({
+                                context: context,
+                                attributeLocations: this.attributeLocations,
+                                vertexShaderSource: this.vertexShaderSource,
+                                fragmentShaderSource: this.fragmentShaderSource
+                            });
+
+                            let renderState = Cesium.RenderState.fromCache(this.rawRenderState);
+                            return new Cesium.DrawCommand({
+                                owner: this,
+                                vertexArray: vertexArray,
+                                primitiveType: this.primitiveType,
+                                uniformMap: this.uniformMap,
+                                modelMatrix: this.modelMatrix,
+                                shaderProgram: shaderProgram,
+                                framebuffer: this.framebuffer,
+                                renderState: renderState,
+                                pass: Cesium.Pass.OPAQUE
+                            });
+                        }
+                        case 'Compute': {
+                            return new Cesium.ComputeCommand({
+                                owner: this,
+                                fragmentShaderSource: this.fragmentShaderSource,
+                                uniformMap: this.uniformMap,
+                                outputTexture: this.outputTexture,
+                                persists: true
+                            });
+                        }
+                    }
+                }
+
+                setGeometry(context, geometry) {
+                    this.geometry = geometry;
+                    let vertexArray = Cesium.VertexArray.fromGeometry({
+                        context: context,
+                        geometry: this.geometry,
+                        attributeLocations: this.attributeLocations,
+                        bufferUsage: Cesium.BufferUsage.STATIC_DRAW,
+                    });
+                    this.commandToExecute.vertexArray = vertexArray;
+                }
+
+                update(frameState) {
+                    if (!this.show) {
+                        return;
+                    }
+
+                    if (!Cesium.defined(this.commandToExecute)) {
+                        this.commandToExecute = this.createCommand(frameState.context);
+                        this.commandToExecute.isPostRender = this.isPostRender;
+                    }
+
+                    if (Cesium.defined(this.preExecute)) {
+                        this.preExecute(this);
+                    }
+
+                    if (Cesium.defined(this.clearCommand)) {
+                        frameState.commandList.push(this.clearCommand);
+                    }
+                    frameState.commandList.push(this.commandToExecute);
+                }
+
+                isDestroyed() {
+                    return false;
+                }
+
+                destroy() {
+                    if (Cesium.defined(this.commandToExecute)) {
+                        this.commandToExecute.shaderProgram = this.commandToExecute.shaderProgram && this.commandToExecute.shaderProgram.destroy();
+                    }
+                    return Cesium.destroyObject(this);
+                }
+            }
+
+            /**
+             * @description 渲染工具类
+             */
+            class RenderUtil {
+                constructor() { }
+
+                static loadText(filePath) {
+                    let request = new XMLHttpRequest();
+                    request.open('GET', filePath, false);
+                    request.send();
+                    return request.responseText;
+                }
+
+                static getFullscreenQuad() {
+                    let fullscreenQuad = new Cesium.Geometry({
+                        attributes: new Cesium.GeometryAttributes({
+                            position: new Cesium.GeometryAttribute({
+                                componentDatatype: Cesium.ComponentDatatype.FLOAT,
+                                componentsPerAttribute: 3,
+                                //  v3----v2
+                                //  |     |
+                                //  |     |
+                                //  v0----v1
+                                values: new Float32Array([
+                                    -1, -1, 0, // v0
+                                    1, -1, 0, // v1
+                                    1, 1, 0, // v2
+                                    -1, 1, 0, // v3
+                                ])
+                            }),
+                            st: new Cesium.GeometryAttribute({
+                                componentDatatype: Cesium.ComponentDatatype.FLOAT,
+                                componentsPerAttribute: 2,
+                                values: new Float32Array([
+                                    0, 0,
+                                    1, 0,
+                                    1, 1,
+                                    0, 1,
+                                ])
+                            })
+                        }),
+                        indices: new Uint32Array([3, 2, 0, 0, 2, 1])
+                    });
+                    return fullscreenQuad;
+                }
+
+                static createTexture(options) {
+                    if (Cesium.defined(options.arrayBufferView)) {
+                        // typed array needs to be passed as source option, this is required by Cesium.Texture
+                        let source = {};
+                        source.arrayBufferView = options.arrayBufferView;
+                        options.source = source;
+                        options.flipY = false;
+                    }
+
+                    let texture = new Cesium.Texture(options);
+                    return texture;
+                }
+
+                static createDepthFramebuffer(context, width, height) {
+                    return new Cesium.Framebuffer({
+                        context: context,
+                        colorTextures: [
+                            this.createTexture({
+                                context: context,
+                                width: width,
+                                height: height,
+                                flipY: false,
+                                pixelFormat: Cesium.PixelFormat.RGBA,
+                                pixelDatatype: Cesium.PixelDatatype.FLOAT,
+                                arrayBufferView: new Float32Array(width * height * 4)
+                            })],
+                        depthRenderbuffer: new Cesium.Renderbuffer({
+                            context: context,
+                            width: width,
+                            height: height,
+                            format: Cesium.RenderbufferFormat.DEPTH_COMPONENT16
+                        }),
+                        destroyAttachments: false,
+                    })
+                }
+
+                static createFramebuffer(context, colorTexture, depthTexture) {
+                    let framebuffer = new Cesium.Framebuffer({
+                        context: context,
+                        colorTextures: [colorTexture],
+                        depthTexture: depthTexture
+                    });
+                    return framebuffer;
+                }
+
+                static createRawRenderState(options) {
+                    let translucent = true;
+                    let closed = false;
+                    let existing = {
+                        viewport: options.viewport,
+                        depthTest: options.depthTest,
+                        depthMask: options.depthMask,
+                        blending: options.blending
+                    };
+
+                    let rawRenderState = Cesium.Appearance.getDefaultRenderState(translucent, closed, existing);
+                    return rawRenderState;
+                }
+            }
+
+            /**
+             * @description 流体体渲染
+             */
+            class FluidRenderer {
+                static DEFAULTS = {
+                    width: 1024,
+                    height: 1024,
+                    dimensions: new Cesium.Cartesian3(2500, 2500, 2500),
+                    heightRange: [0, 2000],
+                    fluidParams: new Cesium.Cartesian4(0.995, 0.25, 0.0001, 0.1),
+                    customParams: new Cesium.Cartesian4(10, 20, 0.2, 10),
+                    lonLat: [120.20998865783179, 30.13650797533829],
+                    timeStep: 0.3,
+                    waterSize: 0.005
+                };
+
+                constructor(viewer, options = {}) {
+                    if (!viewer) throw new Error("Cesium Viewer is required");
+
+                    this.viewer = viewer;
+                    this._initConfiguration(options);
+                    this._initState();
+                    this._createResources();
+                    this._setupRenderPipeline();
+                }
+
+                // 初始化配置参数
+                _initConfiguration(options) {
+                    this.config = {
+                        resolution: new Cesium.Cartesian2(
+                            options.width || FluidRenderer.DEFAULTS.width,
+                            options.height || FluidRenderer.DEFAULTS.height
+                        ),
+                        dimensions: options.dimensions || FluidRenderer.DEFAULTS.dimensions.clone(),
+                        heightRange: {
+                            min: options.minHeight || FluidRenderer.DEFAULTS.heightRange[0],
+                            max: options.maxHeight || FluidRenderer.DEFAULTS.heightRange[1]
+                        },
+                        fluidParams: options.fluidParams || FluidRenderer.DEFAULTS.fluidParams.clone(),
+                        customParams: options.customParams || FluidRenderer.DEFAULTS.customParams.clone(),
+                        lonLat: options.lonLat || [...FluidRenderer.DEFAULTS.lonLat],
+                        timeStep: options.timeStep || FluidRenderer.DEFAULTS.timeStep,
+                        waterSize: options.waterSize || FluidRenderer.DEFAULTS.waterSize
+                    };
+
+                    // 计算精确的单位系统
+                    this._calculateUnitSystem();
+                }
+
+                // 计算单位系统：确保1立方米水在模拟中的精确表示
+                _calculateUnitSystem() {
+                    // 1. 计算模拟区域的实际物理尺寸（米）
+                    const areaWidth = this.config.dimensions.x;  // 米
+                    const areaHeight = this.config.dimensions.y; // 米
+                    const areaDepth = this.config.dimensions.z;  // 米（高度范围）
+
+                    // 2. 计算纹理分辨率
+                    const texWidth = this.config.resolution.x;   // 像素
+                    const texHeight = this.config.resolution.y;  // 像素
+
+                    // 3. 计算单个像素代表的实际面积（平方米）
+                    const pixelWidth = areaWidth / texWidth;     // 米/像素
+                    const pixelHeight = areaHeight / texHeight;  // 米/像素
+                    const pixelArea = pixelWidth * pixelHeight;  // 平方米/像素
+
+                    // 4. 计算归一化高度到实际高度的转换系数
+                    // 在着色器中，水深存储为归一化值 [0, 1]
+                    // 需要转换为实际高度（米）
+                    const heightScale = areaDepth; // 归一化值1.0 = areaDepth米
+
+                    // 5. 计算1立方米水在归一化坐标系中的表示
+                    // 1 m³ 水 = 水深(m) × 面积(m²)
+                    // 如果均匀分布在一个像素上：水深 = 1 m³ / pixelArea m²
+                    const oneCubicMeterDepth = 1.0 / pixelArea; // 米
+                    // 转换为归一化值
+                    const oneCubicMeterNormalized = oneCubicMeterDepth / heightScale;
+
+                    // 6. 存储单位系统参数
+                    this.unitSystem = {
+                        // 物理尺寸
+                        areaWidth: areaWidth,           // 模拟区域宽度（米）
+                        areaHeight: areaHeight,         // 模拟区域高度（米）
+                        areaDepth: areaDepth,           // 高度范围（米）
+                        totalArea: areaWidth * areaHeight, // 总面积（平方米）
+
+                        // 纹理分辨率
+                        texWidth: texWidth,
+                        texHeight: texHeight,
+                        totalPixels: texWidth * texHeight,
+
+                        // 像素-物理转换
+                        pixelWidth: pixelWidth,         // 单个像素的宽度（米）
+                        pixelHeight: pixelHeight,       // 单个像素的高度（米）
+                        pixelArea: pixelArea,           // 单个像素的面积（平方米）
+
+                        // 高度转换
+                        heightScale: heightScale,       // 归一化高度到米的转换系数
+                        heightToNormalized: 1.0 / heightScale, // 米到归一化的转换系数
+
+                        // 体积转换（基础值，用于动态计算）
+                        oneCubicMeterDepth: oneCubicMeterDepth,           // 1m³水在一个像素上的深度（米）
+                        oneCubicMeterNormalized: oneCubicMeterNormalized, // 1m³水在一个像素上的归一化深度
+
+                        // 单次点击体积转换系数（考虑水源半径）
+                        // 这个值会在运行时根据实际的 waterSourceRadius 动态计算
+                        getClickVolumeToNormalized: (radiusNormalized) => {
+                            // 计算水源半径内的像素数量
+                            const radiusPixels = radiusNormalized * texWidth;
+                            const affectedPixels = Math.PI * radiusPixels * radiusPixels;
+                            // 返回：体积(m³) 转换为 归一化深度
+                            return oneCubicMeterNormalized / affectedPixels;
+                        }
+                    };
+
+                    console.log('=== 单位系统初始化 ===');
+                    console.log(`模拟区域: ${areaWidth}m × ${areaHeight}m × ${areaDepth}m`);
+                    console.log(`纹理分辨率: ${texWidth} × ${texHeight} 像素`);
+                    console.log(`单个像素面积: ${pixelArea.toFixed(4)} m²`);
+                    console.log(`高度缩放: 归一化1.0 = ${heightScale}m`);
+                    console.log(`1立方米水深度: ${oneCubicMeterDepth.toFixed(6)} m`);
+                    console.log(`1立方米归一化深度: ${oneCubicMeterNormalized.toExponential(6)}`);
+
+                    // 验证单位系统的正确性
+                    console.log('\n=== 单位系统验证 ===');
+                    console.log(`场景1: 在1个像素上添加1立方米水`);
+                    const test1_normalizedDepth = oneCubicMeterNormalized;
+                    const test1_actualDepth = test1_normalizedDepth * heightScale;
+                    const test1_volume = test1_actualDepth * pixelArea;
+                    console.log(`  归一化深度: ${test1_normalizedDepth.toExponential(6)}`);
+                    console.log(`  实际深度: ${test1_actualDepth.toFixed(6)} m`);
+                    console.log(`  体积: ${test1_actualDepth.toFixed(6)}m × ${pixelArea.toFixed(4)}m² = ${test1_volume.toFixed(6)} m³`);
+                    console.log(`  ✓ 误差: ${Math.abs(test1_volume - 1.0).toExponential(2)} m³`);
+
+                    console.log(`\n场景2: 持续出水10000 m³/s，运行1秒`);
+                    const test2_flowRate = 10000; // m³/s
+                    const test2_time = 1.0; // s
+                    const test2_expectedVolume = test2_flowRate * test2_time;
+                    console.log(`  预期总水量: ${test2_expectedVolume} m³`);
+                    console.log(`  注意: 实际水量将通过shader中的falloff²积分精确控制`);
+
+                    console.log('\n注意: flowToNormalized 将根据当前水源半径动态计算');
+                    console.log('=====================');
+                }
+
+                // 初始化运行状态
+                _initState() {
+                    this._frameCount = 0;
+                    this._isActive = true;
+                    this._time = 0;
+                    this._waterSourcePos = new Cesium.Cartesian2(-1, -1); // 初始化在区域外
+                    this._waterSourceRadius = 0.02; // 水源半径（归一化坐标）
+                    this._waterDepthColorIntensity = 1.0; // 水深颜色强度
+                    this._boundaryDrawing = false; // 是否正在绘制边界
+                    this._boundaryPoints = []; // 边界点集合
+                    this._allowFlowOut = false; // 默认不允许水流出边界
+                    this._continuousFlow = true; // 默认开启持续出水
+                    this._flowRate = 10000000; // 流量 10000000 m³/s
+                    this._waterSourceStrength = 10000000; // 单次点击水源强度，等于流量值
+                    this._continuousSourcePos = new Cesium.Cartesian2(-1, -1); // 持续出水位置
+                    this._continuousFlowStartTime = 0; // 持续出水开始时间
+                    this._totalVolume = 0; // 总水量
+                    this._lastTime = 0; // 上次更新时间
+                    this._waterDepthCache = new Map(); // 水深缓存 key: "u,v", value: depth
+                    this._lastWaterAddTime = 0; // 上次添加水的时间
+                    this._deltaTime = 0.016; // 帧时间间隔（秒），默认60fps
+                }
+
+                // 创建图形资源
+                _createResources() {
+                    this._createTextures();
+                    this._setupHeightMap();
+                    this._createDebugVisualization();
+                }
+
+                // 创建处理纹理
+                _createTextures() {
+                    const createFloatTexture = () => {
+                        return RenderUtil.createTexture({
+                            context: this.viewer.scene.context,
+                            width: this.config.resolution.x,
+                            height: this.config.resolution.y,
+                            pixelFormat: Cesium.PixelFormat.RGBA,
+                            pixelDatatype: Cesium.PixelDatatype.FLOAT,
+                            arrayBufferView: new Float32Array(
+                                this.config.resolution.x *
+                                this.config.resolution.y * 4
+                            )
+                        });
+                    };
+
+                    this.textures = {
+                        A: createFloatTexture(),
+                        B: createFloatTexture(),
+                        C: createFloatTexture(),
+                        D: createFloatTexture()
+                    };
+
+                    // 创建边界遮罩纹理（初始化为全白，表示整个区域可用）
+                    const maskData = new Float32Array(this.config.resolution.x * this.config.resolution.y * 4);
+                    for (let i = 0; i < maskData.length; i += 4) {
+                        maskData[i] = 1.0;     // R
+                        maskData[i + 1] = 1.0; // G
+                        maskData[i + 2] = 1.0; // B
+                        maskData[i + 3] = 1.0; // A
+                    }
+                    this._boundaryMask = RenderUtil.createTexture({
+                        context: this.viewer.scene.context,
+                        width: this.config.resolution.x,
+                        height: this.config.resolution.y,
+                        pixelFormat: Cesium.PixelFormat.RGBA,
+                        pixelDatatype: Cesium.PixelDatatype.FLOAT,
+                        arrayBufferView: maskData
+                    });
+                }
+
+                // 设置高度图系统
+                _setupHeightMap() {
+                    this.heightMapCamera = this._createOrthographicCamera();
+                    this._heightMap = this._generateHeightMapTexture();
+                }
+
+                // 生成高度图纹理
+                _generateHeightMapTexture() {
+                    const context = this.viewer.scene.context;
+                    const fbo = RenderUtil.createDepthFramebuffer(
+                        context,
+                        this.config.resolution.x,
+                        this.config.resolution.y
+                    );
+
+                    // 保存原始状态
+                    const passState = this.viewer.scene._view.passState;
+                    const originalCamera = this.viewer.scene.camera;
+                    const originalFramebuffer = context._currentFramebuffer;
+                    const originalViewport = passState.viewport;
+                    // 配置渲染状态
+                    passState.viewport.x = 0;
+                    passState.viewport.y = 0;
+                    passState.viewport.width = this.config.resolution.x
+                    passState.viewport.height = this.config.resolution.y
+                    passState.framebuffer = fbo;
+                    this.viewer.scene.camera = this.heightMapCamera;
+
+                    // 在渲染深度预处理前添加着色器处理
+                    this._processHeightMapShaders();
+                    // 执行深度渲染
+                    this._renderDepthPrepass(passState);
+
+                    // 创建高度图纹理
+                    const heightMap = RenderUtil.createTexture({
+                        context: context,
+                        width: this.config.resolution.x,
+                        height: this.config.resolution.y,
+                        flipY: false,
+                        pixelFormat: Cesium.PixelFormat.RGBA,
+                        pixelDatatype: Cesium.PixelDatatype.FLOAT
+                    });
+
+                    // 拷贝数据到高度图纹理
+                    const copyFBO = RenderUtil.createFramebuffer(context, heightMap);
+                    this._copyTexture(fbo.getColorTexture(0), copyFBO);
+
+                    // 恢复原始状态
+                    passState.framebuffer = originalFramebuffer;
+                    passState.viewport = originalViewport;
+                    this.viewer.scene.camera = originalCamera;
+
+                    return heightMap;
+                }
+
+                // 执行深度预渲染
+                _renderDepthPrepass(passState) {
+                    const frameState = this.viewer.scene.frameState;
+
+                    // 更新相机状态
+                    frameState.camera = this.heightMapCamera;
+                    this.viewer.scene.frameState.context.uniformState.updateCamera(this.heightMapCamera);
+
+                    // 执行渲染命令
+                    const commands = this._getDepthRenderCommands();
+                    commands.forEach(cmd => cmd.execute(this.viewer.scene.context, passState));
+                }
+
+                // 创建调试实体,白色箱子
+                _createDebugVisualization() {
+                    this.debugEntity = this.viewer.entities.add({
+                        position: Cesium.Cartesian3.fromDegrees(
+                            ...this.config.lonLat,
+                            this.config.dimensions.z / 2
+                        ),
+                        box: {
+                            dimensions: this.config.dimensions,
+                            fill: false,
+                            outline: true,
+                            outlineColor: Cesium.Color.WHITE
+                        }
+                    });
+                }
+
+                // 设置渲染管线
+                _setupRenderPipeline() {
+                    this._createComputePasses();
+                    this._createMainRenderPass();
+                    this._startRenderLoop();
+                }
+
+                // 创建计算通道
+                _createComputePasses() {
+                    const commonUniforms = {
+                        iTime: () => this._time,
+                        iFrame: () => this._frameCount,
+                        resolution: () => this.config.resolution,
+                        waterSize: () => this.config.waterSize,
+                        fluidParam: () => this.config.fluidParams,
+                        customParam: () => this.config.customParams,
+                        minHeight: () => this.config.heightRange.min,
+                        maxHeight: () => this.config.heightRange.max,
+                        heightMap: () => this._heightMap,
+                        waterSourcePos: () => this._waterSourcePos,
+                        waterSourceRadius: () => this._waterSourceRadius,
+                        waterSourceStrength: () => this._waterSourceStrength,
+                        boundaryMask: () => this._boundaryMask,
+                        allowFlowOut: () => this._allowFlowOut ? 1.0 : 0.0,
+                        continuousFlow: () => this._continuousFlow ? 1.0 : 0.0,
+                        continuousSourcePos: () => this._continuousSourcePos,
+                        flowRate: () => this._flowRate,
+                        deltaTime: () => this._deltaTime,
+                        flowToNormalized: () => {
+                            // 动态计算flowToNormalized，基于当前的水源半径
+                            // 确保无论半径如何变化，总出水量都严格等于flowRate
+                            const radiusInPixels = this._waterSourceRadius * this.config.resolution.x;
+                            const falloffIntegral = Math.PI * radiusInPixels * radiusInPixels / 6.0;
+                            return this.unitSystem.oneCubicMeterNormalized / falloffIntegral;
+                        },
+                        clickVolumeToNormalized: () => this.unitSystem.getClickVolumeToNormalized(this._waterSourceRadius),
+                    };
+
+                    this.computePasses = [
+                        this._createComputePass('A', {
+                            uniforms: {
+                                ...commonUniforms,
+                                iChannel0: () => this.textures.C,
+                                iChannel1: () => this.textures.D
+                            },
+                            shaderSource: BufferA
+                        }),
+                        this._createComputePass('B', {
+                            uniforms: {
+                                ...commonUniforms,
+                                iChannel0: () => this.textures.A,
+                                iChannel1: () => this.textures.D
+                            },
+                            shaderSource: BufferB
+                        }),
+                        this._createComputePass('C', {
+                            uniforms: {
+                                ...commonUniforms,
+                                iChannel0: () => this.textures.A,
+                                iChannel1: () => this.textures.B
+                            },
+                            shaderSource: BufferC
+                        }),
+                        this._createComputePass('D', {
+                            uniforms: {
+                                ...commonUniforms,
+                                iChannel0: () => this.textures.C,
+                                iChannel1: () => this.textures.B
+                            },
+                            shaderSource: BufferD
+                        })
+                    ];
+                }
+
+                // 计算通道工厂方法
+                _createComputePass(outputTextureName, { uniforms, shaderSource }) {
+                    return new CustomPrimitive({
+                        commandType: 'Compute',
+                        uniformMap: uniforms,
+                        fragmentShaderSource: new Cesium.ShaderSource({
+                            sources: [Command, shaderSource]
+                        }),
+                        geometry: RenderUtil.getFullscreenQuad(),
+                        outputTexture: this.textures[outputTextureName],
+                        preExecute: (cmd) => cmd.commandToExecute.outputTexture = this.textures[outputTextureName]
+                    });
+                }
+
+                // 创建主渲染通道
+                _createMainRenderPass() {
+
+                    const modelMatrix = generateModelMatrix([...this.config.lonLat, this.config.dimensions.z / 2], [90, 0, 0], [this.config.dimensions.x, this.config.dimensions.z, this.config.dimensions.y])
+                    this.mainRenderPass = new CustomPrimitive({
+                        commandType: 'Draw',
+                        uniformMap: this._getMainRenderUniforms(),
+                        vertexShaderSource: this._getVertexShader(),
+                        fragmentShaderSource: new Cesium.ShaderSource({
+                            sources: [Command, renderShaderSource]
+                        }),
+                        geometry: this._createBoxGeometry(),
+                        modelMatrix: modelMatrix,
+                        attributeLocations: this._getAttributeLocations(),
+                        rawRenderState: this._createRenderState()
+                    });
+                }
+
+                // 获取主渲染Uniform
+                _getMainRenderUniforms() {
+                    return {
+                        iTime: () => this._time,
+                        iFrame: () => this._frameCount,
+                        iResolution: () => this.config.resolution,
+                        iChannel0: () => this.textures.C,
+                        heightMap: () => this._heightMap,
+                        customParam: () => this.config.customParams,
+                        colorTexture: () => this.viewer.scene.view.globeDepth.colorFramebufferManager._colorTextures[0],
+                        waterDepthColorIntensity: () => this._waterDepthColorIntensity
+                    };
+                }
+
+                // 启动渲染循环
+                _startRenderLoop() {
+                    // 初始化时间
+                    this._lastTime = performance.now() / 1000;
+
+                    this.postRenderHandler = this.viewer.scene.postRender.addEventListener(() => {
+                        if (!this._isActive) return;
+
+                        const currentTime = performance.now() / 1000;
+                        const deltaTime = currentTime - this._lastTime;
+                        this._lastTime = currentTime;
+
+                        // 更新 deltaTime，限制在合理范围内（避免暂停后的大跳跃）
+                        this._deltaTime = Math.min(Math.max(deltaTime, 0.001), 0.1);
+
+                        this._time = currentTime;
+                        this._frameCount += this.config.timeStep;
+
+                        // 每秒更新一次水体总量
+                        if (Math.floor(currentTime) !== Math.floor(currentTime - deltaTime)) {
+                            this._updateTotalVolume();
+                        }
+                    });
+
+                    this.computePasses.forEach(p => this.viewer.scene.primitives.add(p));
+                    this.viewer.scene.primitives.add(this.mainRenderPass);
+                }
+
+
+                // 屏幕坐标转世界坐标
+                _screenToWorld(screenPos) {
+                    const ray = this.viewer.camera.getPickRay(screenPos);
+                    return this.viewer.scene.globe.pick(ray, this.viewer.scene);
+                }
+
+                // 创建正交投影相机
+                _createOrthographicCamera() {
+                    const camera = new Cesium.Camera(this.viewer.scene);
+                    camera.frustum = new Cesium.OrthographicOffCenterFrustum();
+
+                    const [lon, lat] = this.config.lonLat;
+                    const center = Cesium.Cartesian3.fromDegrees(lon, lat, 0);
+                    const enuMatrix = Cesium.Transforms.eastNorthUpToFixedFrame(center);
+
+                    // 配置视锥体
+                    const frustum = camera.frustum;
+                    frustum.near = 0.01;
+                    frustum.far = this.config.dimensions.z * 2;
+                    frustum.left = -this.config.dimensions.x / 2;
+                    frustum.right = this.config.dimensions.x / 2;
+                    frustum.bottom = -this.config.dimensions.y / 2;
+                    frustum.top = this.config.dimensions.y / 2;
+
+                    // 计算相机方位
+                    const dir = Cesium.Matrix4.getColumn(enuMatrix, 2, new Cesium.Cartesian3());
+                    Cesium.Cartesian3.negate(dir, dir);
+                    const up = Cesium.Matrix4.getColumn(enuMatrix, 1, new Cesium.Cartesian3());
+                    const right = Cesium.Matrix4.getColumn(enuMatrix, 0, new Cesium.Cartesian3());
+
+                    // 定位相机位置
+                    const offset = Cesium.Cartesian3.multiplyByScalar(dir, -frustum.far, new Cesium.Cartesian3());
+                    camera.position = Cesium.Cartesian3.add(center, offset, new Cesium.Cartesian3());
+                    camera.direction = dir;
+                    camera.up = up;
+                    camera.right = right;
+
+                    return camera;
+                }
+
+                // 添加水源点
+                addWaterSource(screenPosition) {
+                    // 将屏幕坐标转换为世界坐标
+                    const cartesian = this.viewer.scene.pickPosition(screenPosition);
+                    if (!Cesium.defined(cartesian)) {
+                        console.warn('Cannot pick position at this location');
+                        return;
+                    }
+
+                    // 转换为ENU坐标系（与高度图渲染时使用的坐标系一致）
+                    const center = Cesium.Cartesian3.fromDegrees(...this.config.lonLat, 0);
+                    const enuMatrix = Cesium.Transforms.eastNorthUpToFixedFrame(center);
+                    const inverseEnu = Cesium.Matrix4.inverse(enuMatrix, new Cesium.Matrix4());
+
+                    const localPos = Cesium.Matrix4.multiplyByPoint(
+                        inverseEnu,
+                        cartesian,
+                        new Cesium.Cartesian3()
+                    );
+
+                    // 归一化到 [0, 1] 范围
+                    // 注意：渲染时使用 p.xz 采样，所以 X->U, Z->V
+                    // 高度图相机是俯视的（从上往下看），Y轴向北，X轴向东
+                    // 重要：高度图纹理在拷贝时Y轴被翻转了（1.0 - y），所以这里也需要翻转V
+                    const normalizedU = (localPos.x / this.config.dimensions.x) + 0.5;
+                    const normalizedV = 1.0 - ((localPos.y / this.config.dimensions.y) + 0.5);
+
+                    // 检查是否在有效范围内
+                    if (normalizedU >= 0 && normalizedU <= 1 && normalizedV >= 0 && normalizedV <= 1) {
+                        this._waterSourcePos = new Cesium.Cartesian2(normalizedU, normalizedV);
+                        this.addWaterSourceVolume(); // 更新总水量
+                        this._updateWaterDepthCache(normalizedU, normalizedV); // 更新水深缓存
+                        console.log(`Water source added at UV: (${normalizedU.toFixed(3)}, ${normalizedV.toFixed(3)})`);
+                        console.log(`Local ENU position (meters): E=${localPos.x.toFixed(1)}, N=${localPos.y.toFixed(1)}, U=${localPos.z.toFixed(1)}`);
+                        console.log(`Dimensions: ${this.config.dimensions.x} x ${this.config.dimensions.y} x ${this.config.dimensions.z}`);
+
+                        // 在下一帧后重置水源位置，避免持续出水
+                        setTimeout(() => {
+                            this._waterSourcePos = new Cesium.Cartesian2(-1, -1);
+                        }, 100);
+
+                        // 添加一个临时标记点用于调试
+                        if (this._debugMarker) {
+                            this.viewer.entities.remove(this._debugMarker);
+                        }
+                        this._debugMarker = this.viewer.entities.add({
+                            position: cartesian,
+                            point: {
+                                pixelSize: 10,
+                                color: Cesium.Color.RED,
+                                outlineColor: Cesium.Color.WHITE,
+                                outlineWidth: 2
+                            },
+                            label: {
+                                text: `UV: ${normalizedU.toFixed(2)}, ${normalizedV.toFixed(2)}`,
+                                font: '14px sans-serif',
+                                fillColor: Cesium.Color.WHITE,
+                                outlineColor: Cesium.Color.BLACK,
+                                outlineWidth: 2,
+                                style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+                                pixelOffset: new Cesium.Cartesian2(0, -20)
+                            }
+                        });
+                    } else {
+                        console.warn(`Click position is outside the fluid area: UV=(${normalizedU.toFixed(3)}, ${normalizedV.toFixed(3)})`);
+                    }
+                }
+
+                // 计算水体总量（使用精确单位系统）
+                _updateTotalVolume() {
+                    // 如果开启持续出水，累加流量
+                    if (this._continuousFlow && this._continuousSourcePos.x >= 0) {
+                        // 每秒增加的体积就是流量值（m³/s）
+                        this._totalVolume += this._flowRate;
+                    }
+
+                    // 如果允许流出边界，水量会逐渐减少（简化模拟）
+                    if (this._allowFlowOut) {
+                        this._totalVolume *= 0.99; // 每秒损失1%
+                    }
+
+                    this._totalVolume = Math.max(0, this._totalVolume);
+                    document.getElementById('totalVolume').textContent = this._totalVolume.toFixed(2);
+                }
+
+                // 添加水源时更新总量（使用精确单位系统）
+                addWaterSourceVolume() {
+                    // _waterSourceStrength 现在直接表示体积（立方米）
+                    const volume = this._waterSourceStrength;
+                    this._totalVolume += volume;
+                    console.log(`添加水量: ${volume.toFixed(2)} m³`);
+                }
+
+                // 获取指定UV坐标的水深（基于物理模拟的精确估算）
+                getWaterDepthAtUV(u, v) {
+                    if (!this.unitSystem) {
+                        return 0;
+                    }
+
+                    let totalDepth = 0;
+                    const currentTime = performance.now() / 1000;
+
+                    // 1. 检查持续出水点的贡献
+                    if (this._continuousFlow && this._continuousSourcePos.x >= 0 && this._continuousSourcePos.x <= 1) {
+                        const dx = u - this._continuousSourcePos.x;
+                        const dy = v - this._continuousSourcePos.y;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+
+                        // 水源影响半径（归一化坐标）
+                        const effectiveRadius = this._waterSourceRadius * 3;
+
+                        if (dist < effectiveRadius) {
+                            // 计算径向衰减
+                            const falloff = Math.max(0, 1 - dist / effectiveRadius);
+
+                            // 计算累积时间（限制最大值避免过大）
+                            const accumulatedTime = Math.min(currentTime - (this._continuousFlowStartTime || currentTime), 30);
+
+                            // 计算该点的累积水深
+                            // 流量(m³/s) × 时间(s) × 衰减系数 / 像素面积(m²) = 水深(m)
+                            const depth = (this._flowRate * accumulatedTime * falloff * falloff) / this.unitSystem.pixelArea;
+                            totalDepth += depth;
+                        }
+                    }
+
+                    // 2. 检查最近点击位置的贡献（使用缓存）
+                    if (this._lastWaterAddTime > 0 && (currentTime - this._lastWaterAddTime) < 10) {
+                        const cacheKey = `${Math.floor(u * 100)},${Math.floor(v * 100)}`;
+                        if (this._waterDepthCache.has(cacheKey)) {
+                            totalDepth += this._waterDepthCache.get(cacheKey);
+                        }
+                    }
+
+                    return totalDepth;
+                }
+
+                // 更新水深缓存
+                _updateWaterDepthCache(centerU, centerV) {
+                    const radius = this._waterSourceRadius * 5;
+                    const steps = 20;
+
+                    // _waterSourceStrength 现在直接表示总体积（立方米）
+                    const totalVolume = this._waterSourceStrength;
+
+                    // 计算单个像素的平均水深（米）
+                    const affectedPixels = Math.PI * Math.pow(this._waterSourceRadius * this.config.resolution.x, 2);
+                    const avgDepthPerPixel = totalVolume / (affectedPixels * this.unitSystem.pixelArea);
+
+                    for (let i = -steps; i <= steps; i++) {
+                        for (let j = -steps; j <= steps; j++) {
+                            const u = centerU + (i / steps) * radius;
+                            const v = centerV + (j / steps) * radius;
+
+                            if (u < 0 || u > 1 || v < 0 || v > 1) continue;
+
+                            const dist = Math.sqrt(Math.pow(i / steps, 2) + Math.pow(j / steps, 2));
+                            if (dist <= 1) {
+                                const falloff = Math.max(0, 1 - dist);
+                                // 使用精确单位系统计算水深（米）
+                                const depth = avgDepthPerPixel * Math.pow(falloff, 1.5);
+
+                                const cacheKey = `${Math.floor(u * 100)},${Math.floor(v * 100)}`;
+                                const existingDepth = this._waterDepthCache.get(cacheKey) || 0;
+                                this._waterDepthCache.set(cacheKey, Math.max(existingDepth, depth));
+                            }
+                        }
+                    }
+
+                    this._lastWaterAddTime = performance.now() / 1000;
+                }
+
+                // 获取鼠标位置的水深
+                getWaterDepthAtScreen(screenPosition) {
+                    const cartesian = this.viewer.scene.pickPosition(screenPosition);
+                    if (!Cesium.defined(cartesian)) return null;
+
+                    const center = Cesium.Cartesian3.fromDegrees(...this.config.lonLat, 0);
+                    const enuMatrix = Cesium.Transforms.eastNorthUpToFixedFrame(center);
+                    const inverseEnu = Cesium.Matrix4.inverse(enuMatrix, new Cesium.Matrix4());
+                    const localPos = Cesium.Matrix4.multiplyByPoint(inverseEnu, cartesian, new Cesium.Cartesian3());
+
+                    // 重要：Y轴翻转以匹配高度图纹理拷贝时的翻转
+                    const normalizedU = (localPos.x / this.config.dimensions.x) + 0.5;
+                    const normalizedV = 1.0 - ((localPos.y / this.config.dimensions.y) + 0.5);
+
+                    if (normalizedU >= 0 && normalizedU <= 1 && normalizedV >= 0 && normalizedV <= 1) {
+                        const depth = this.getWaterDepthAtUV(normalizedU, normalizedV);
+                        // 调试日志（可选）
+                        // console.log(`UV: (${normalizedU.toFixed(3)}, ${normalizedV.toFixed(3)}), Depth: ${depth.toFixed(3)}`);
+                        return depth;
+                    }
+                    return null;
+                }
+
+                // 开始绘制边界
+                startBoundaryDrawing() {
+                    this._boundaryDrawing = true;
+                    this._boundaryPoints = [];
+                    console.log('开始绘制不规则边界，点击鼠标绘制边界点');
+                }
+
+                // 停止绘制边界
+                stopBoundaryDrawing() {
+                    this._boundaryDrawing = false;
+                    if (this._boundaryPoints.length > 2) {
+                        this._updateBoundaryMask();
+                        console.log(`边界绘制完成，共 ${this._boundaryPoints.length} 个点`);
+                    }
+                }
+
+                // 添加边界点
+                addBoundaryPoint(screenPosition) {
+                    const cartesian = this.viewer.scene.pickPosition(screenPosition);
+                    if (!Cesium.defined(cartesian)) return;
+
+                    const center = Cesium.Cartesian3.fromDegrees(...this.config.lonLat, 0);
+                    const enuMatrix = Cesium.Transforms.eastNorthUpToFixedFrame(center);
+                    const inverseEnu = Cesium.Matrix4.inverse(enuMatrix, new Cesium.Matrix4());
+                    const localPos = Cesium.Matrix4.multiplyByPoint(inverseEnu, cartesian, new Cesium.Cartesian3());
+
+                    const normalizedU = (localPos.x / this.config.dimensions.x) + 0.5;
+                    const normalizedV = 1.0 - ((localPos.y / this.config.dimensions.y) + 0.5);
+
+                    if (normalizedU >= 0 && normalizedU <= 1 && normalizedV >= 0 && normalizedV <= 1) {
+                        this._boundaryPoints.push({ u: normalizedU, v: normalizedV });
+
+                        // 添加可视化标记
+                        this.viewer.entities.add({
+                            position: cartesian,
+                            point: {
+                                pixelSize: 8,
+                                color: Cesium.Color.YELLOW,
+                                outlineColor: Cesium.Color.BLACK,
+                                outlineWidth: 2
+                            }
+                        });
+                    }
+                }
+
+                // 更新边界遮罩纹理
+                _updateBoundaryMask() {
+                    const width = this.config.resolution.x;
+                    const height = this.config.resolution.y;
+                    const maskData = new Float32Array(width * height * 4);
+
+                    // 使用多边形填充算法
+                    for (let y = 0; y < height; y++) {
+                        for (let x = 0; x < width; x++) {
+                            const u = x / width;
+                            const v = y / height;
+                            const inside = this._isPointInPolygon(u, v, this._boundaryPoints);
+                            const idx = (y * width + x) * 4;
+                            const value = inside ? 1.0 : 0.0;
+                            maskData[idx] = value;
+                            maskData[idx + 1] = value;
+                            maskData[idx + 2] = value;
+                            maskData[idx + 3] = 1.0;
+                        }
+                    }
+
+                    // 更新纹理
+                    this._boundaryMask.destroy();
+                    this._boundaryMask = RenderUtil.createTexture({
+                        context: this.viewer.scene.context,
+                        width: width,
+                        height: height,
+                        pixelFormat: Cesium.PixelFormat.RGBA,
+                        pixelDatatype: Cesium.PixelDatatype.FLOAT,
+                        arrayBufferView: maskData
+                    });
+                }
+
+                // 点在多边形内判断（射线法）
+                _isPointInPolygon(u, v, polygon) {
+                    let inside = false;
+                    for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+                        const xi = polygon[i].u, yi = polygon[i].v;
+                        const xj = polygon[j].u, yj = polygon[j].v;
+                        const intersect = ((yi > v) !== (yj > v)) && (u < (xj - xi) * (v - yi) / (yj - yi) + xi);
+                        if (intersect) inside = !inside;
+                    }
+                    return inside;
+                }
+
+                // 清除边界
+                clearBoundary() {
+                    const width = this.config.resolution.x;
+                    const height = this.config.resolution.y;
+                    const maskData = new Float32Array(width * height * 4);
+                    for (let i = 0; i < maskData.length; i += 4) {
+                        maskData[i] = 1.0;
+                        maskData[i + 1] = 1.0;
+                        maskData[i + 2] = 1.0;
+                        maskData[i + 3] = 1.0;
+                    }
+                    this._boundaryMask.destroy();
+                    this._boundaryMask = RenderUtil.createTexture({
+                        context: this.viewer.scene.context,
+                        width: width,
+                        height: height,
+                        pixelFormat: Cesium.PixelFormat.RGBA,
+                        pixelDatatype: Cesium.PixelDatatype.FLOAT,
+                        arrayBufferView: maskData
+                    });
+                    this._boundaryPoints = [];
+                    console.log('边界已清除');
+                }
+
+                // 更新边界尺寸
+                updateBoundaryDimensions(newWidth, newHeight) {
+                    // 更新配置
+                    this.config.dimensions.x = newWidth;
+                    this.config.dimensions.y = newHeight;
+
+                    // 更新调试实体（白色边界框）
+                    if (this.debugEntity) {
+                        this.viewer.entities.remove(this.debugEntity);
+                        this.debugEntity = this.viewer.entities.add({
+                            position: Cesium.Cartesian3.fromDegrees(
+                                ...this.config.lonLat,
+                                this.config.dimensions.z / 2
+                            ),
+                            box: {
+                                dimensions: this.config.dimensions,
+                                fill: false,
+                                outline: true,
+                                outlineColor: Cesium.Color.WHITE
+                            }
+                        });
+                    }
+
+                    // 更新高度图相机的视锥体
+                    if (this.heightMapCamera) {
+                        const frustum = this.heightMapCamera.frustum;
+                        frustum.left = -newWidth / 2;
+                        frustum.right = newWidth / 2;
+                        frustum.bottom = -newHeight / 2;
+                        frustum.top = newHeight / 2;
+                    }
+
+                    console.log(`边界尺寸已更新: ${newWidth}m x ${newHeight}m`);
+                }
+
+                // 销毁资源
+                destroy() {
+                    this._isActive = false;
+                    this.viewer.scene.postRender.removeEventListener(this.postRenderHandler);
+
+                    [this.mainRenderPass, ...this.computePasses].forEach(p =>
+                        this.viewer.scene.primitives.remove(p)
+                    );
+
+                    this.viewer.entities.remove(this.debugEntity);
+
+                    Object.values(this.textures).forEach(tex => tex.destroy());
+                    this._heightMap.destroy();
+                    this._boundaryMask.destroy();
+                }
+
+                /* 纹理拷贝方法 */
+                _copyTexture(sourceTexture, targetFBO) {
+                    const context = this.viewer.scene.context;
+                    const frameState = this.viewer.scene.frameState;
+                    const passState = this.viewer.scene.view.passState;
+
+                    const drawCommand = context.createViewportQuadCommand(
+                        `uniform sampler2D u_texToCopy;
+            in vec2 v_textureCoordinates;
+            void main() {
+                out_FragColor = texture(u_texToCopy, vec2(v_textureCoordinates.x, 1.0 - v_textureCoordinates.y));
+            }`,
+                        {
+                            uniformMap: {
+                                u_texToCopy: () => sourceTexture
+                            },
+                            owner: this
+                        }
+                    );
+
+                    // 保存原始状态
+                    const originalFramebuffer = passState.framebuffer;
+
+                    // 执行拷贝
+                    passState.framebuffer = targetFBO;
+                    drawCommand.execute(context, passState);
+
+                    // 恢复状态
+                    passState.framebuffer = originalFramebuffer;
+                }
+
+                /* 获取地形深度渲染命令 */
+                _getDepthRenderCommands() {
+                    const commands = [];
+                    const frustumCommandsList = this.viewer.scene._view.frustumCommandsList;
+                    for (let i = 0; i < frustumCommandsList.length; ++i) {
+                        const frustumCommands = frustumCommandsList[i];
+                        const length = frustumCommands.indices[2];
+                        if (length > 0) {
+                            commands.push(...frustumCommands.commands[2].slice(0, length));
+                        }
+                    }
+                    return commands;
+                }
+
+                /* 高度图着色器处理 */
+                _processHeightMapShaders() {
+                    // 计算逆ENU矩阵
+                    const enuMatrix = Cesium.Transforms.eastNorthUpToFixedFrame(
+                        Cesium.Cartesian3.fromDegrees(...this.config.lonLat, 0)
+                    );
+                    const localMat4 = Cesium.Matrix4.inverse(enuMatrix, new Cesium.Matrix4());
+
+                    // 计算合成矩阵
+                    this._inverseEnuMatrix = Cesium.Matrix4.multiply(
+                        localMat4,
+                        this.viewer.scene.frameState.context.uniformState.model, // 当前模型矩阵
+                        new Cesium.Matrix4()
+                    );
+                    const frameState = this.viewer.scene.frameState;
+                    const commands = this._getDepthRenderCommands();
+                    console.log(commands);
+                    commands.forEach(command => {
+                        command.uniformMap.u_inverseEnuMatrix = () => this._inverseEnuMatrix;
+                        if (!command.heightMap_ShaderProgram) {
+                            command.heightMap_ShaderProgram = this._getDerivedShaderProgram(
+                                frameState.context,
+                                command.shaderProgram,
+                                'Height_Map'
+                            );
+                        }
+                        command.shaderProgram = command.heightMap_ShaderProgram;
+                    });
+                }
+
+                /* 创建派生着色器程序 */
+                _getDerivedShaderProgram(context, baseShaderProgram, passName) {
+                    let derivedProgram = context.shaderCache.getDerivedShaderProgram(
+                        baseShaderProgram,
+                        passName
+                    );
+
+                    if (!Cesium.defined(derivedProgram)) {
+                        derivedProgram = this._createHeightMapShaderProgram(
+                            context,
+                            baseShaderProgram,
+                            passName
+                        );
+                    }
+
+                    return derivedProgram;
+                }
+
+                /* 生成高度图专用着色器 */
+                _createHeightMapShaderProgram(context, baseShaderProgram, passName) {
+                    // 修改片段着色器源码
+                    const newFS = this._modifyFragmentShader(baseShaderProgram.fragmentShaderSource);
+
+                    return context.shaderCache.createDerivedShaderProgram(
+                        baseShaderProgram,
+                        passName,
+                        {
+                            vertexShaderSource: baseShaderProgram.vertexShaderSource,
+                            fragmentShaderSource: newFS,
+                            attributeLocations: baseShaderProgram._attributeLocations
+                        }
+                    );
+                }
+
+                /* 修改片段着色器 */
+                _modifyFragmentShader(originalFS) {
+                    const modifiedSources = originalFS.sources.map(source =>
+                        Cesium.ShaderSource.replaceMain(source, "czm_heightMap_main")
+                    );
+
+                    modifiedSources.push(`
+            uniform mat4 u_inverseEnuMatrix;
+            void main() {
+                czm_heightMap_main();
+                vec3 posMC = (u_inverseEnuMatrix * vec4(v_positionMC, 1.0)).xyz;
+                out_FragColor = vec4(posMC.z, out_FragColor.gb, 1.0);
+            }
+        `);
+
+                    return new Cesium.ShaderSource({
+                        sources: modifiedSources,
+                        defines: originalFS.defines
+                    });
+                }
+
+
+                /* 创建流体几何体 */
+                _createBoxGeometry() {
+                    return Cesium.BoxGeometry.createGeometry(
+                        Cesium.BoxGeometry.fromDimensions({
+                            vertexFormat: Cesium.VertexFormat.POSITION_AND_ST,
+                            dimensions: new Cesium.Cartesian3(1, 1, 1)
+                        })
+                    );
+                }
+
+                /* 获取属性位置映射 */
+                _getAttributeLocations() {
+                    return Cesium.GeometryPipeline.createAttributeLocations(
+                        this._createBoxGeometry()
+                    );
+                }
+
+                /* 创建渲染状态配置 */
+                _createRenderState() {
+                    return Cesium.RenderState.fromCache({
+                        cull: {
+                            enabled: false,
+                            face: Cesium.CullFace.BACK
+                        },
+                        depthRange: { near: 0, far: 1 },
+                        depthTest: { enabled: true },
+                        depthMask: true,
+                        colorMask: {
+                            red: true,
+                            green: true,
+                            blue: true,
+                            alpha: true
+                        }
+                    });
+                }
+
+                /* 顶点着色器生成 */
+                _getVertexShader() {
+                    return new Cesium.ShaderSource({
+                        sources: [`
+                in vec3 position;
+                in vec2 st;
+              
+                out vec3 vo;
+                out vec3 vd;
+                out vec2 v_st;
+                
+                void main() {    
+                    vo = czm_encodedCameraPositionMCHigh + czm_encodedCameraPositionMCLow;
+                    vd = position - vo;
+                    v_st = st;
+                    gl_Position = czm_modelViewProjection * vec4(position,1.0);
+                }`
+                        ]
+                    });
+                }
+            }
+
+            /**
+             * 生成矩阵
+             * @param {*} position 
+             * @param {*} rotation 
+             * @param {*} scale
+             * @returns 
+             */
+            const generateModelMatrix = (position = [0, 0, 0], rotation = [0, 0, 0], scale = [1, 1, 1]) => {
+                const rotationX = Cesium.Matrix4.fromRotationTranslation(
+                    Cesium.Matrix3.fromRotationX(Cesium.Math.toRadians(rotation[0])));
+
+                const rotationY = Cesium.Matrix4.fromRotationTranslation(
+                    Cesium.Matrix3.fromRotationY(Cesium.Math.toRadians(rotation[1])));
+
+                const rotationZ = Cesium.Matrix4.fromRotationTranslation(
+                    Cesium.Matrix3.fromRotationZ(Cesium.Math.toRadians(rotation[2])));
+                if (!(position instanceof Cesium.Cartesian3)) {
+                    position = Cesium.Cartesian3.fromDegrees(...position)
+                }
+                const enuMatrix = Cesium.Transforms.eastNorthUpToFixedFrame(position);
+                Cesium.Matrix4.multiply(enuMatrix, rotationX, enuMatrix);
+                Cesium.Matrix4.multiply(enuMatrix, rotationY, enuMatrix);
+                Cesium.Matrix4.multiply(enuMatrix, rotationZ, enuMatrix);
+                const scaleMatrix = Cesium.Matrix4.fromScale(new Cesium.Cartesian3(...scale));
+                const modelMatrix = Cesium.Matrix4.multiply(enuMatrix, scaleMatrix, new Cesium.Matrix4());
+
+                return modelMatrix;
+            }
+
+            // 基础shader雾效果
+            const atmosphereFs = `
+        precision highp float;
+        uniform sampler2D colorTexture;
+        uniform sampler2D depthTexture;
+        uniform vec4 customParam;
+        in vec2 v_textureCoordinates;
+        const float PI = 3.14159265359;
+        const float TWO_PI = PI * 2.0;
+        const float FOUR_PI = PI * 4.0;
+        const vec3 betaR = vec3(5.5e-6, 13.0e-6, 22.4e-6); 
+        const vec3 betaM = vec3(21e-6);
+        const float hR = 10e3;
+        const float hM = 3.8e3;
+        const int num_samples = 16;
+        const int num_samples_light = 4;
+        #ifdef GL_ES
+            #define _in(T) const in T
+            #define _inout(T) inout T
+            #define _out(T) out T
+            #define _begin(type) type (
+            #define _end )
+            #define mul(a, b) (a) * (b)
+        #endif
+        struct ray_t {
+            vec3 origin;
+            vec3 direction;
+        };
+        struct sphere_t {
+            vec3 origin;
+            float radius;
+            int material;
+        };
+        struct plane_t {
+            vec3 direction;
+            float distance;
+            int material;
+        };
+        plane_t plane;
+        mat3 rotate_around_x(_in(float) angle_degrees) {
+            float angle = radians(angle_degrees);
+            float _sin = sin(angle);
+            float _cos = cos(angle);
+            return mat3(1, 0, 0, 0, _cos, -_sin, 0, _sin, _cos);
+        }
+        bool isect_sphere(_in(ray_t) ray, _in(sphere_t) sphere, _inout(float) t0, _inout(float) t1) {
+            vec3 rc = sphere.origin - ray.origin;
+            float radius2 = sphere.radius * sphere.radius;
+            float tca = dot(rc, ray.direction);
+            float d2 = dot(rc, rc) - tca * tca;
+            if (d2 > radius2) return false;
+            float thc = sqrt(radius2 - d2);
+            t0 = tca - thc;
+            t1 = tca + thc;
+            return true;
+        }
+        float rayleigh_phase_func(float mu) {
+            return
+            3. * (1. + mu*mu)
+            / 
+            (16. * PI);
+        }
+        const float g = 0.76;
+        float henyey_greenstein_phase_func(float mu) {
+            return
+            (1. - g*g)
+            / 
+            ((4. * PI) * pow(1. + g*g - 2.*g*mu, 1.5));
+        }
+        const float k = 1.55*g - 0.55 * (g*g*g);
+        float schlick_phase_func(float mu) {
+            return
+            (1. - k*k)
+            / 
+            (4. * PI * (1. + k*mu) * (1. + k*mu));
+        }
+        const sphere_t atmosphere = _begin(sphere_t)
+        vec3(0, 0, 0), 6420e3, 0
+        _end;
+        bool get_sun_light(
+        _in(ray_t) ray, _inout(float) optical_depthR, _inout(float) optical_depthM
+        ) {
+            float t0, t1;
+            isect_sphere(ray, atmosphere, t0, t1);
+            float march_pos = 0.;
+            float march_step = t1 / float(num_samples_light);
+            for (int i = 0; i < num_samples_light; i++) {
+                vec3 s = ray.origin +
+                ray.direction * (march_pos + 0.5 * march_step);
+                float height = length(s) - 6360e3;
+                if (height < 0.)
+                return false;
+                optical_depthR += exp(-height / hR) * march_step;
+                optical_depthM += exp(-height / hM) * march_step;
+                march_pos += march_step;
+            }
+            return true;
+        }
+        // 基于屏幕空间的Ray Marching球面近似大气散射
+        vec4 get_incident_light(_in(ray_t) ray) {
+            vec3 dir = ray.direction;
+            vec3 start = ray.origin;
+            float a = dot( dir, dir);
+            float b = 2.0 * dot(dir, start);
+            float radius2 = atmosphere.radius * atmosphere.radius;
+            float c = dot(start, start) - radius2;
+            float d = (b * b) - 4.0 * a * c;
+            if (d < 0.0) return vec4(0.0);
+            float squaredD = sqrt(d);
+            vec2 ray_length = vec2(
+            max((-b - squaredD) / (2.0 * a), 0.0), min((-b + squaredD) / (2.0 * a), plane.distance)
+            );
+            if (ray_length.x > ray_length.y) return vec4(0.0);
+            float march_step = (ray_length.y - ray_length.x) / float(num_samples);
+            float mu = dot(ray.direction, normalize(czm_sunPositionWC));
+            float phaseR = rayleigh_phase_func(mu);
+            float phaseM = 
+            #if 1
+                henyey_greenstein_phase_func(mu);
+            #else
+                schlick_phase_func(mu);
+            #endif
+            
+            float optical_depthR = 0.;
+            float optical_depthM = 0.;
+            vec3 sumR = vec3(0);
+            vec3 sumM = vec3(0);
+            float march_pos = 0.;
+            for (int i = 0; i < num_samples; i++) {
+                vec3 s = ray.origin +
+                ray.direction * (march_pos + 0.5 * march_step);
+                float height = length(s) - 6360e3;
+                float hr = exp(-height / hR) * march_step;
+                float hm = exp(-height / hM) * march_step;
+                optical_depthR += hr;
+                optical_depthM += hm;
+                ray_t light_ray = _begin(ray_t)
+                s, normalize(czm_sunPositionWC)
+                _end;
+                float optical_depth_lightR = 0.;
+                float optical_depth_lightM = 0.;
+                bool overground = get_sun_light(
+                    light_ray,
+                    optical_depth_lightR,
+                    optical_depth_lightM);
+
+                if (overground) {
+                    vec3 tau =
+                        betaR * (optical_depthR + optical_depth_lightR) +
+                        betaM * 1.1 * (optical_depthM + optical_depth_lightM);
+                    vec3 attenuation = exp(-tau);
+
+                    sumR += hr * attenuation;
+                    sumM += hm * attenuation;
+                }
+
+                march_pos += march_step;
+            }
+            float attenuation = length(exp(-((betaM * optical_depthM)
+            + (betaR * optical_depthR)) * 4.));
+            return vec4(
+            23. *
+            (sumR * phaseR * betaR +
+            sumM * phaseM * betaM), 1.0-attenuation);
+        }
+        
+        void main() {
+            vec4 rawColor = texture(colorTexture, v_textureCoordinates);
+            float depth = czm_unpackDepth(texture(depthTexture, v_textureCoordinates));
+            vec4 positionEC = czm_windowToEyeCoordinates(gl_FragCoord.xy, depth);
+            vec4 positionWC = czm_inverseView * positionEC;
+            positionWC.xyz = positionWC.xyz / positionWC.w;
+            vec3 lVector = positionWC.xyz - czm_viewerPositionWC;
+            ray_t ray;
+            ray.origin = czm_viewerPositionWC;
+            ray.direction =  normalize(lVector);
+            plane.distance = length(lVector);
+            vec4 atmosphereColor = get_incident_light(ray);
+            rawColor = atmosphereColor + rawColor * (1.0 - atmosphereColor.a);
+            rawColor = vec4(1.0 - exp(-2.2 * rawColor));
+            out_FragColor = rawColor;
+        }      
+    `;
+
+            /**
+            * 基础大气雾
+            * @returns 
+            */
+            function createSkyEffect() {
+                return new Cesium.PostProcessStage({
+                    fragmentShader: atmosphereFs,
+                });
+            }
+            await init();
+        })()
+
+
+    </script>
+</body>

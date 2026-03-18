@@ -29,14 +29,11 @@ export const mapSeniorMenuConfigs = [
     img: "./images/menu/addGeode.png"
   },
   {
-    title: "缓存示例",
-    key: "CacheUrl",
-    url: "/CacheUrl",
+    title: "Cesium水流",
+    key: "CesiumForFluid",
+    url: "/CesiumForFluid",
     type: "VUE",
     img: "./images/menu/addGeode.png"
-  }
-  
-
-  
+  },
   
 ];
