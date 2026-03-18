@@ -39,7 +39,7 @@
   onMounted(() => {
     mapClass = new MapClass();
     console.log("Cesium版本", Cesium.VERSION);
-    //let modelParam=modelDataArr[0];//渠首模型
+    let modelParam=modelDataArr[0];//渠首模型
     //let modelParam=modelDataArr[1];//引汤进水闸模型
     //let modelParam=modelDataArr[2];//伏胜节制闸模型
     //let modelParam=modelDataArr[3];//格节河节制闸模型
