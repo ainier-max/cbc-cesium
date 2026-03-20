@@ -11,54 +11,100 @@
             <div class="row">
               <div class="input-group">
                 <label>全局库水位 (m)</label>
-                <input type="number" v-model.number="globalConfig.reservoir_water_level" step="0.1" @input="onInput" />
+                <input
+                  v-model.number="globalConfig.reservoir_water_level"
+                  type="number"
+                  step="0.1"
+                  @input="onInput"
+                />
               </div>
               <div class="input-group">
                 <label>坝顶高程 (m)</label>
-                <input type="number" v-model.number="globalConfig.dam_top_elevation" @input="onInput" />
+                <input
+                  v-model.number="globalConfig.dam_top_elevation"
+                  type="number"
+                  @input="onInput"
+                />
               </div>
             </div>
+
             <div class="row">
               <div class="input-group">
                 <label>坝底高程 (m)</label>
-                <input type="number" v-model.number="globalConfig.dam_bottom_elevation" @input="onInput" />
+                <input
+                  v-model.number="globalConfig.dam_bottom_elevation"
+                  type="number"
+                  @input="onInput"
+                />
               </div>
               <div class="input-group">
                 <label>坝顶宽度 (m)</label>
-                <input type="number" v-model.number="globalConfig.dam_top_width" @input="onInput" />
+                <input
+                  v-model.number="globalConfig.dam_top_width"
+                  type="number"
+                  @input="onInput"
+                />
               </div>
             </div>
+
             <div class="row">
               <div class="input-group">
-                <label>上游坡比 (1:m1)</label>
-                <input type="number" v-model.number="globalConfig.upstream_slope" step="0.1" @input="onInput" />
+                <label>上游坝坡比 (1:m1)</label>
+                <input
+                  v-model.number="globalConfig.upstream_slope"
+                  type="number"
+                  step="0.1"
+                  @input="onInput"
+                />
               </div>
               <div class="input-group">
-                <label>下游坡比 (1:m2)</label>
-                <input type="number" v-model.number="globalConfig.downstream_slope" step="0.1" @input="onInput" />
+                <label>下游坝坡比 (1:m2)</label>
+                <input
+                  v-model.number="globalConfig.downstream_slope"
+                  type="number"
+                  step="0.1"
+                  @input="onInput"
+                />
               </div>
             </div>
+
             <div class="row">
               <div class="input-group">
                 <label>马道垂直间距 (m)</label>
-                <input type="number" v-model.number="globalConfig.step_height" step="1" @input="onInput" />
+                <input
+                  v-model.number="globalConfig.step_height"
+                  type="number"
+                  step="1"
+                  @input="onInput"
+                />
               </div>
               <div class="input-group">
                 <label>马道宽度 (m)</label>
-                <input type="number" v-model.number="globalConfig.step_width" step="0.5" @input="onInput" />
+                <input
+                  v-model.number="globalConfig.step_width"
+                  type="number"
+                  step="0.5"
+                  @input="onInput"
+                />
               </div>
             </div>
+
             <div class="row">
               <div class="input-group">
                 <label>坝体材料类型</label>
                 <select v-model="globalConfig.material_type" @change="onInput">
-                  <option value="earth">土石坝(含防渗心墙)</option>
+                  <option value="earth">土石坝（含防渗心墙）</option>
                   <option value="clay">黏土均质坝</option>
                 </select>
               </div>
               <div class="input-group">
                 <label>坝壳渗透系数 k (m/day)</label>
-                <input type="number" v-model.number="globalConfig.permeability_coefficient" step="1e-9" @input="onInput" />
+                <input
+                  v-model.number="globalConfig.permeability_coefficient"
+                  type="number"
+                  step="1e-9"
+                  @input="onInput"
+                />
               </div>
             </div>
 
@@ -67,21 +113,38 @@
               <div class="row">
                 <div class="input-group">
                   <label>心墙顶高程 (m)</label>
-                  <input type="number" v-model.number="globalConfig.core_top_elevation" @input="onInput" />
+                  <input
+                    v-model.number="globalConfig.core_top_elevation"
+                    type="number"
+                    @input="onInput"
+                  />
                 </div>
                 <div class="input-group">
                   <label>心墙顶宽 (m)</label>
-                  <input type="number" v-model.number="globalConfig.core_top_width" @input="onInput" />
+                  <input
+                    v-model.number="globalConfig.core_top_width"
+                    type="number"
+                    @input="onInput"
+                  />
                 </div>
               </div>
               <div class="row">
                 <div class="input-group">
                   <label>心墙底宽 (m)</label>
-                  <input type="number" v-model.number="globalConfig.core_bottom_width" @input="onInput" />
+                  <input
+                    v-model.number="globalConfig.core_bottom_width"
+                    type="number"
+                    @input="onInput"
+                  />
                 </div>
                 <div class="input-group">
                   <label>心墙渗透系数 k (m/day)</label>
-                  <input type="number" v-model.number="globalConfig.core_permeability_coefficient" step="1e-9" @input="onInput" />
+                  <input
+                    v-model.number="globalConfig.core_permeability_coefficient"
+                    type="number"
+                    step="1e-9"
+                    @input="onInput"
+                  />
                 </div>
               </div>
             </div>
@@ -91,21 +154,39 @@
               <div class="row">
                 <div class="input-group">
                   <label>棱体顶高程 (m)</label>
-                  <input type="number" v-model.number="globalConfig.prism_top_elevation" @input="onInput" />
+                  <input
+                    v-model.number="globalConfig.prism_top_elevation"
+                    type="number"
+                    @input="onInput"
+                  />
                 </div>
                 <div class="input-group">
                   <label>棱体顶宽度 (m)</label>
-                  <input type="number" v-model.number="globalConfig.prism_top_width" @input="onInput" />
+                  <input
+                    v-model.number="globalConfig.prism_top_width"
+                    type="number"
+                    @input="onInput"
+                  />
                 </div>
               </div>
               <div class="row">
                 <div class="input-group">
                   <label>外坡比 (1:m)</label>
-                  <input type="number" v-model.number="globalConfig.prism_slope" step="0.1" @input="onInput" />
+                  <input
+                    v-model.number="globalConfig.prism_slope"
+                    type="number"
+                    step="0.1"
+                    @input="onInput"
+                  />
                 </div>
                 <div class="input-group">
                   <label>内坡比 (1:m)</label>
-                  <input type="number" v-model.number="globalConfig.prism_inner_slope" step="0.1" @input="onInput" />
+                  <input
+                    v-model.number="globalConfig.prism_inner_slope"
+                    type="number"
+                    step="0.1"
+                    @input="onInput"
+                  />
                 </div>
               </div>
             </div>
@@ -122,16 +203,27 @@
           <div class="panel-content">
             <div class="section-manager">
               <select :value="currentSectionId" @change="onSwitchSection($event.target.value)">
-                <option v-for="section in sections" :key="section.id" :value="section.id">
+                <option
+                  v-for="section in sections"
+                  :key="section.id"
+                  :value="section.id"
+                >
                   {{ section.name }}
                 </option>
               </select>
-              <button class="btn-primary" @click="emit('addSection')">+ 增加</button>
+              <button type="button" class="btn-primary" @click="emit('addSection')">
+                + 新增
+              </button>
             </div>
 
             <div class="input-group">
               <label>当前断面水位 (留空继承全局)</label>
-              <input type="number" v-model.number="currentSection.localLevel" placeholder="继承全局" @input="emit('syncSectionData')" />
+              <input
+                v-model.number="currentSection.localLevel"
+                type="number"
+                placeholder="继承全局"
+                @input="emit('syncSectionData')"
+              />
             </div>
 
             <div class="section-block">
@@ -150,16 +242,37 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="(sensor, index) in currentSection.sensors" :key="`${currentSection.id}-${index}`">
-                    <td><input type="text" v-model="sensor.id" @input="emit('draw')" /></td>
-                    <td><input type="number" v-model.number="sensor.x" @input="emit('draw')" /></td>
-                    <td><input type="number" v-model.number="sensor.bottom" @input="emit('draw')" /></td>
-                    <td><input type="number" v-model.number="sensor.water" @input="emit('draw')" /></td>
-                    <td><button class="btn-delete" @click="emit('removeSensor', index)">×</button></td>
+                  <tr
+                    v-for="(sensor, index) in currentSection.sensors"
+                    :key="`${currentSection.id}-${index}`"
+                  >
+                    <td>
+                      <input v-model="sensor.id" type="text" @input="emit('draw')" />
+                    </td>
+                    <td>
+                      <input v-model.number="sensor.x" type="number" @input="emit('draw')" />
+                    </td>
+                    <td>
+                      <input v-model.number="sensor.bottom" type="number" @input="emit('draw')" />
+                    </td>
+                    <td>
+                      <input v-model.number="sensor.water" type="number" @input="emit('draw')" />
+                    </td>
+                    <td>
+                      <button
+                        type="button"
+                        class="btn-delete"
+                        @click="emit('removeSensor', index)"
+                      >
+                        ×
+                      </button>
+                    </td>
                   </tr>
                 </tbody>
               </table>
-              <button class="btn-add" @click="emit('addSensor')">+ 添加测压管</button>
+              <button type="button" class="btn-add" @click="emit('addSensor')">
+                + 添加测压管
+              </button>
             </div>
           </div>
         </div>
@@ -215,7 +328,7 @@ function onSwitchSection(value) {
   const section = props.sections.find((item) => String(item.id) === String(value));
   if (!section) return;
   emit("update:currentSectionId", section.id);
-  emit("switchSection");
+  emit("switchSection", section.id);
 }
 </script>
 

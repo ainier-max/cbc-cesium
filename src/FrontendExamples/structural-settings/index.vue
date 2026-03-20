@@ -20,16 +20,27 @@
       <div class="toolbar">
         <div>
           <h1>坝体断面建模</h1>
-          <p>纯前端版本，保留断面参数编辑、测压管配置、剖面绘制和本地导出能力。</p>
+          <p>基于 PlineClass 的前端示例，保留断面参数编辑、测压管配置和本地配置管理能力。</p>
         </div>
         <div class="toolbar-actions">
-          <el-button @click="scene?.resetView()">重置视图</el-button>
+          <el-button @click="plineInstance?.resetView()">重置视图</el-button>
         </div>
       </div>
 
-      <div class="canvas-container" ref="canvasContainer">
-        <canvas ref="damCanvas"></canvas>
-        <div class="tooltip-box" ref="tooltip"></div>
+      <div
+        id="structural-settings-container"
+        ref="canvasContainer"
+        class="canvas-container"
+      >
+        <canvas
+          id="structural-settings-canvas"
+          ref="damCanvas"
+        ></canvas>
+        <div
+          id="structural-settings-tooltip"
+          ref="tooltip"
+          class="tooltip-box"
+        ></div>
       </div>
     </div>
   </div>
@@ -39,8 +50,13 @@
 import { nextTick, onMounted, onUnmounted, reactive, ref, watch } from "vue";
 import { ElMessage } from "element-plus";
 import StructuralSettingsPanel from "./leftPanel/index.vue";
-import { STORAGE_KEY, cloneDefaults, createDefaultGlobalConfig, createDefaultSections } from "./defaults.js";
-import { createStructuralScene } from "./scene.js";
+import PlineClass from "./class/PlineClass.js";
+import {
+  STORAGE_KEY,
+  cloneDefaults,
+  createDefaultGlobalConfig,
+  createDefaultSections
+} from "./defaults.js";
 
 const damCanvas = ref(null);
 const canvasContainer = ref(null);
@@ -48,76 +64,111 @@ const tooltip = ref(null);
 
 const globalConfig = reactive(createDefaultGlobalConfig());
 const sections = ref(createDefaultSections());
-const currentSectionId = ref(sections.value[0].id);
+const currentSectionId = ref(sections.value[0]?.id ?? null);
 
-let scene = null;
+let plineInstance = null;
 let resizeObserver = null;
+
+function normalizeGlobalConfig() {
+  globalConfig.coreWallEnabled = globalConfig.material_type === "earth";
+  globalConfig.drainElev = globalConfig.prism_top_elevation || 0;
+}
+
+function syncInstanceData() {
+  if (!plineInstance) return;
+  normalizeGlobalConfig();
+  plineInstance.globalConfig = globalConfig;
+  plineInstance.sections = sections.value;
+}
 
 function applyStoredConfig(payload) {
   if (!payload) return;
+
   Object.assign(globalConfig, createDefaultGlobalConfig(), payload.globalConfig || {});
+  normalizeGlobalConfig();
+
   const nextSections = Array.isArray(payload.sections) && payload.sections.length > 0
     ? payload.sections
     : createDefaultSections();
+
   sections.value = cloneDefaults(nextSections);
-  const sectionExists = sections.value.some((item) => item.id === payload.currentSectionId);
-  currentSectionId.value = sectionExists ? payload.currentSectionId : sections.value[0].id;
+
+  const storedSectionId = payload.currentSectionId;
+  const hasStoredSection = sections.value.some((item) => item.id === storedSectionId);
+  currentSectionId.value = hasStoredSection ? storedSectionId : sections.value[0]?.id ?? null;
+}
+
+function buildPayload() {
+  return {
+    globalConfig: cloneDefaults(globalConfig),
+    sections: cloneDefaults(sections.value),
+    currentSectionId: currentSectionId.value
+  };
 }
 
 function syncGlobalAndDraw() {
-  globalConfig.coreWallEnabled = globalConfig.material_type === "earth";
-  globalConfig.drainElev = globalConfig.prism_top_elevation || 0;
-  scene?.draw();
+  syncInstanceData();
+  plineInstance?.updateAndDraw();
 }
 
-function switchSection() {
-  scene?.draw();
+function switchSection(sectionId = currentSectionId.value) {
+  if (sectionId !== undefined && sectionId !== null) {
+    currentSectionId.value = sectionId;
+  }
+  syncInstanceData();
+  if (currentSectionId.value !== undefined && currentSectionId.value !== null) {
+    plineInstance?.switchSection(currentSectionId.value);
+  }
 }
 
 function syncSectionData() {
-  scene?.draw();
+  syncInstanceData();
+  plineInstance?.updateAndDraw();
 }
 
 function addSection() {
   const nextId = Date.now();
-  sections.value.push({
-    id: nextId,
-    name: `断面 ${String(sections.value.length + 1).padStart(2, "0")}`,
-    localLevel: null,
-    sensors: []
-  });
+  sections.value = [
+    ...sections.value,
+    {
+      id: nextId,
+      name: `断面 ${String(sections.value.length + 1).padStart(2, "0")}`,
+      localLevel: null,
+      sensors: []
+    }
+  ];
   currentSectionId.value = nextId;
+
   nextTick(() => {
-    scene?.resetView();
+    syncInstanceData();
+    plineInstance?.switchSection(nextId);
   });
 }
 
 function addSensor() {
   const currentSection = sections.value.find((item) => item.id === currentSectionId.value);
   if (!currentSection) return;
+
   currentSection.sensors.push({
     id: `P${currentSection.sensors.length + 1}`,
     x: 0,
     bottom: 15,
     water: 25
   });
-  scene?.draw();
+
+  syncSectionData();
 }
 
 function removeSensor(index) {
   const currentSection = sections.value.find((item) => item.id === currentSectionId.value);
   if (!currentSection) return;
+
   currentSection.sensors.splice(index, 1);
-  scene?.draw();
+  syncSectionData();
 }
 
 function saveConfig() {
-  const payload = {
-    globalConfig: cloneDefaults(globalConfig),
-    sections: cloneDefaults(sections.value),
-    currentSectionId: currentSectionId.value
-  };
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(buildPayload()));
   ElMessage.success("已保存到本地浏览器缓存");
 }
 
@@ -126,9 +177,12 @@ function exportConfig() {
     globalConfig: cloneDefaults(globalConfig),
     sections: cloneDefaults(sections.value)
   };
-  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json;charset=utf-8" });
+  const blob = new Blob([JSON.stringify(payload, null, 2)], {
+    type: "application/json;charset=utf-8"
+  });
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
+
   link.href = url;
   link.download = "structural-settings.json";
   document.body.appendChild(link);
@@ -139,52 +193,50 @@ function exportConfig() {
 
 function resetConfig() {
   Object.assign(globalConfig, createDefaultGlobalConfig());
+  normalizeGlobalConfig();
   sections.value = createDefaultSections();
-  currentSectionId.value = sections.value[0].id;
+  currentSectionId.value = sections.value[0]?.id ?? null;
   localStorage.removeItem(STORAGE_KEY);
+
   nextTick(() => {
-    scene?.resetView();
+    syncInstanceData();
+    if (currentSectionId.value !== undefined && currentSectionId.value !== null) {
+      plineInstance?.switchSection(currentSectionId.value);
+    } else {
+      plineInstance?.resetView();
+    }
   });
+
   ElMessage.success("已恢复默认配置");
 }
 
-function initScene() {
+function initPlineClass() {
   if (!damCanvas.value || !canvasContainer.value || !tooltip.value) return;
-  scene?.destroy?.();
-  scene = createStructuralScene({
-    canvas: damCanvas.value,
-    container: canvasContainer.value,
-    tooltip: tooltip.value,
-    getGlobalConfig: () => globalConfig,
-    getSections: () => sections.value,
-    getCurrentSectionId: () => currentSectionId.value
+
+  plineInstance?.destroy?.();
+  normalizeGlobalConfig();
+
+  plineInstance = new PlineClass(
+    "structural-settings-canvas",
+    "structural-settings-container",
+    "structural-settings-tooltip"
+  );
+
+  plineInstance.init({
+    sections: sections.value,
+    globalConfig
   });
-  scene.resizeCanvas();
-  scene.resetView();
+
+  if (currentSectionId.value !== undefined && currentSectionId.value !== null) {
+    plineInstance.switchSection(currentSectionId.value);
+  }
 }
 
 watch(
   () => globalConfig.material_type,
-  (value) => {
-    globalConfig.coreWallEnabled = value === "earth";
+  () => {
     syncGlobalAndDraw();
   }
-);
-
-watch(
-  [sections, currentSectionId],
-  () => {
-    scene?.draw();
-  },
-  { deep: true }
-);
-
-watch(
-  globalConfig,
-  () => {
-    scene?.draw();
-  },
-  { deep: true }
 );
 
 onMounted(() => {
@@ -195,22 +247,26 @@ onMounted(() => {
     } catch (error) {
       console.error("Failed to parse structural-settings cache", error);
     }
+  } else {
+    normalizeGlobalConfig();
   }
 
   nextTick(() => {
-    initScene();
+    initPlineClass();
     resizeObserver = new ResizeObserver(() => {
-      scene?.resizeCanvas();
-      scene?.resetView();
+      plineInstance?.resizeCanvas(false);
+      plineInstance?.resetView();
     });
-    resizeObserver.observe(canvasContainer.value);
+    if (canvasContainer.value) {
+      resizeObserver.observe(canvasContainer.value);
+    }
   });
 });
 
 onUnmounted(() => {
   resizeObserver?.disconnect();
-  scene?.destroy?.();
-  scene = null;
+  plineInstance?.destroy?.();
+  plineInstance = null;
 });
 </script>
 
@@ -234,6 +290,7 @@ onUnmounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 16px;
   padding: 18px 24px;
   background: rgba(248, 250, 252, 0.92);
   border-bottom: 1px solid #cbd5e1;
