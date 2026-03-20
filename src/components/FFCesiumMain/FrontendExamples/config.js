@@ -3,7 +3,7 @@ export const FrontendExamplesMenuConfigs = [
   {
     title: "大坝建模",
     key: "structuralSettings",
-    url: "/FrontendExamples/structural-settings/index.vue",
+    url: "/FrontendExamples/structural-settings",
     type: "VUE",
     img: "./images/menu/addGeode.png"
   }

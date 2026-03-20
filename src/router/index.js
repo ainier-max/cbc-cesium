@@ -60,8 +60,17 @@ const routes = [
         name: "Md",
         path: "Md",
         component: () => import("@/components/FFCesiumMain/Md/index.vue")
+      },
+      {
+        name: "FrontendExamples",
+        path: "FrontendExamples",
+        component: () => import("@/components/FFCesiumMain/FrontendExamples/index.vue")
       }
     ]
+  },
+  {
+    path: "/FrontendExamples/structural-settings",
+    component: () => import("@/FrontendExamples/structural-settings/index.vue")
   },
   {
     path: "/modelEditTool",
