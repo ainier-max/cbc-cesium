@@ -57,6 +57,10 @@
                 <i class="el-icon-date"></i>
                 <span style="font-size: 16px">平台手册</span>
               </el-menu-item>
+               <el-menu-item index="9">
+                <i class="el-icon-date"></i>
+                <span style="font-size: 16px">前端示例</span>
+              </el-menu-item>
             </el-menu>
           </div>
         </el-aside>
@@ -94,7 +98,11 @@
     activeIndex.value = "7";
   } else if (router.currentRoute.value.path == "/ffCesiumMain/Md") {
     activeIndex.value = "8";
+  }else if (router.currentRoute.value.path == "/ffCesiumMain/FrontendExamples") {
+    activeIndex.value = "9";
   }
+
+  
 
   console.log("activeIndex", activeIndex);
 
@@ -122,11 +130,9 @@
     }
     if (key == "8") {
       router.push({ name: "Md" });
-      // const { href } = router.resolve({
-      //   path: "/Md"
-      // });
-      // window.open(href, "_blank");
-      // router.push({ name: "Md" });
+    }
+    if (key == "9") {
+      router.push({ name: "FrontendExamples" });
     }
   };
   const handleOpen = (key, keyPath) => {};
