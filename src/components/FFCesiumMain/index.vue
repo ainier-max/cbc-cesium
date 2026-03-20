@@ -35,7 +35,7 @@
 
               <el-menu-item index="4">
                 <i class="el-icon-s-data"></i>
-                <span style="font-size: 16px">地图特效</span>
+                <span style="font-size: 16px">地图效果</span>
               </el-menu-item>
 
               <el-menu-item index="5">

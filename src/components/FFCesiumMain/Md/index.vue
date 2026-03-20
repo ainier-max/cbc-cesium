@@ -87,7 +87,7 @@
 
   newlist.sort(function (a, b) {
     // order是规则bai  objs是需要排序的数du组
-    var order = ["介绍", "地球初始化", "地图工具方法", "基础地图加载接口", "基础操作接口", "地图特效", "地图标绘", "高级工具"];
+    var order = ["介绍", "地图接入", "地图操作", "地图工具", "地图标绘", "地图效果", "空间分析", "高级示例"];
     return order.indexOf(a.title) - order.indexOf(b.title);
   });
 
