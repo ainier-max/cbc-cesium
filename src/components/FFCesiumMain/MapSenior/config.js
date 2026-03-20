@@ -35,5 +35,11 @@ export const mapSeniorMenuConfigs = [
     type: "VUE",
     img: "./images/menu/addGeode.png"
   },
-  
+  {
+    title: "水头效果",
+    key: "WaterHead",
+    url: "/WaterHead",
+    type: "VUE",
+    img: "./images/menu/addGeode.png"
+  }
 ];

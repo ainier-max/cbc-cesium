@@ -78,6 +78,10 @@ const routes = [
   {
     path: "/CesiumForFluid",
     component: () => import("@/MapSenior/CesiumForFluid/index.vue")
+  },
+  {
+    path: "/WaterHead",
+    component: () => import("@/MapSenior/WaterHead/index.vue")
   }
 ];
 const router = createRouter({
