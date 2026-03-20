@@ -19,13 +19,13 @@ export const advancedExamplesMenuConfigs = [
     img: "./images/menu/addGeode.png"
   },
   {
-    title: "飞行漫游",
+    title: "飞行漫游（相机位置）",
     key: "FlyRoam",
     url: "./FFCesiumExample/senior/FlyRoam/FlyRoam.vue",
     img: "./images/menu/addGeode.png"
   },
   {
-    title: "飞行漫游(新版)",
+    title: "飞行漫游（地图中心）",
     key: "FlyRoamNew",
     url: "./FFCesiumExample/senior/FlyRoamNew/FlyRoamNew.vue",
     img: "./images/menu/addGeode.png"

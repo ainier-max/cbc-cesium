@@ -4,6 +4,7 @@
       <button type="button" @click="startRoam">开始漫游</button>
       <button type="button" @click="pauseRoam">暂停漫游</button>
       <button type="button" @click="continueRoam">继续漫游</button>
+      <button type="button" @click="stopRoam">停止漫游</button>
     </div>
   </div>
 </template>
@@ -34,18 +35,12 @@
   });
 
   onBeforeUnmount(() => {
-    clearLabelInterval();
-    clearLabelEntities();
-    if (polygonEntity && viewer) {
-      viewer.entities.remove(polygonEntity);
-      polygonEntity = null;
-    }
+    stopRoam();
     if (clickHandler) {
       clickHandler.destroy();
       clickHandler = null;
     }
     if (flyRoamClass) {
-      flyRoamClass.stopFly();
       flyRoamClass = null;
     }
     if (viewer && !viewer.isDestroyed()) {
@@ -94,16 +89,22 @@
     if (flyRoamClass) flyRoamClass.continueFly();
   };
 
-  const startRoam = () => {
-    if (!viewer || !flyRoamClass) return;
-
+  const stopRoam = () => {
     clearLabelInterval();
     clearLabelEntities();
-    if (polygonEntity) {
+    if (polygonEntity && viewer) {
       viewer.entities.remove(polygonEntity);
       polygonEntity = null;
     }
-    flyRoamClass.stopFly();
+    if (flyRoamClass) {
+      flyRoamClass.stopFly();
+    }
+  };
+
+  const startRoam = () => {
+    if (!viewer || !flyRoamClass) return;
+
+    stopRoam();
 
     const flyItem = canalJson.features[1];
     const lnglatArr = flyItem.geometry.coordinates;
