@@ -32,10 +32,10 @@ export function createDefaultSections() {
       name: "断面 01",
       localLevel: null,
       sensors: [
-        { id: "P1", x: 10, bottom: 12, water: 43.5 },
-        { id: "P2", x: 20, bottom: 20, water: 39.5 },
-        { id: "P3", x: 40, bottom: 18, water: 22.1 },
-        { id: "P4", x: 50, bottom: 11, water: 16.5 }
+        { id: "P1", x: 10, bottom: 20, water: 35.5 },
+        { id: "P2", x: 20, bottom: 18, water: 30.5 },
+        { id: "P3", x: 40, bottom: 16, water: 22.1 },
+        { id: "P4", x: 50, bottom: 12, water: 16.5 }
       ]
     }
   ];
