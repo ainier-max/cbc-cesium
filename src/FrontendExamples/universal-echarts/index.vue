@@ -5,7 +5,7 @@
     </div>
 
     <div class="chart-card">
-      <div ref="chartRef" style="width: 100%; height: 100%"></div>
+      <div ref="chartRef" id="echartID" style="width: 100%; height: 100%"></div>
     </div>
   </div>
 </template>
@@ -13,6 +13,8 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from "vue";
 import * as echarts from "echarts";
+import EchartClass from "./echartClass";
+let echartClass=new EchartClass();
 
 // ---- 静态模拟数据 ----
 const START_TIME = "2025-01-01 00:00:00";
@@ -30,24 +32,18 @@ function generateMockData() {
   }
   return data;
 }
-const mockChartData = generateMockData();
 
+const mockChartData = generateMockData();
 const chartRef = ref(null);
 let chartInstance = null;
-
 function initChart() {
   if (!chartRef.value) return;
-
   chartInstance = echarts.init(chartRef.value);
-
   const seriesData = mockChartData.map((item) => ({
     name: item[0],
     value: [new Date(item[0]), item[1]],
   }));
-
-  const values = mockChartData.map((d) => d[1]);
-  const min = Math.floor(Math.min(...values) - 2);
-  const max = Math.ceil(Math.max(...values) + 2);
+  const { minVlaue: min, maxVlaue: max } = echartClass.getMaxAndMin([mockChartData.map((item) => item[1])]);
 
   chartInstance.setOption({
     tooltip: {
@@ -97,18 +93,7 @@ function initChart() {
       },
     ],
   });
-
-  // 默认激活区域缩放（框选放大）
-  chartInstance.dispatchAction({
-    type: "takeGlobalCursor",
-    key: "dataZoomSelect",
-    dataZoomSelectActive: true,
-  });
-
-  // 双击还原缩放
-  chartRef.value.addEventListener("dblclick", () => {
-    chartInstance.dispatchAction({ type: "dataZoom", start: 0, end: 100 });
-  });
+  echartClass.useZoomTool(chartInstance, "echartID");
 }
 
 function handleResize() {
@@ -126,6 +111,7 @@ onUnmounted(() => {
   chartInstance = null;
 });
 </script>
+
 <style scoped>
 .page {
   width: 100%;
@@ -139,6 +125,7 @@ onUnmounted(() => {
 .toolbar {
   margin-bottom: 16px;
 }
+
 .toolbar h1 {
   margin: 0 0 4px;
   font-size: 20px;
