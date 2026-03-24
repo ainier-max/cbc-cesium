@@ -73,6 +73,10 @@ const routes = [
     component: () => import("@/FrontendExamples/structural-settings/index.vue")
   },
   {
+    path: "/FrontendExamples/universal-echarts",
+    component: () => import("@/FrontendExamples/universal-echarts/index.vue")
+  },
+  {
     path: "/modelEditTool",
     component: () => import("@/MapSenior/ModelEditTool/index.vue")
   },
