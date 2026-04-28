@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Structural Settings Example</title>
+  <style>
+    :root {
+      --bg-page: #e2e8f0;
+      --bg-surface: rgba(248, 250, 252, 0.92);
+      --bg-panel: #ffffff;
+      --bg-panel-muted: #f8fafc;
+      --bg-canvas: linear-gradient(180deg, #dbeafe 0%, #bfdbfe 45%, #e2e8f0 100%);
+      --text-main: #0f172a;
+      --text-secondary: #475569;
+      --text-muted: #64748b;
+      --line-soft: #e2e8f0;
+      --line-accent: #dbeafe;
+      --primary: #2563eb;
+      --primary-strong: #1d4ed8;
+      --danger: #dc2626;
+      --shadow-soft: 0 16px 40px rgba(15, 23, 42, 0.08);
+      --shadow-toast: 0 18px 36px rgba(15, 23, 42, 0.22);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      color: var(--text-main);
+      background: var(--bg-page);
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    .page {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      overflow: hidden;
+      background: var(--bg-page);
+    }
+
+    .sidebar {
+      width: 320px;
+      background: var(--bg-panel);
+      border-right: 1px solid var(--line-soft);
+      display: flex;
+      flex-direction: column;
+      box-shadow: 2px 0 10px rgba(15, 23, 42, 0.06);
+      z-index: 2;
+    }
+
+    .sidebar-scroll-area {
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .sidebar-scroll-area::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .sidebar-scroll-area::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 999px;
+    }
+
+    .sidebar-footer {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      padding: 14px 10px;
+      border-top: 1px solid var(--line-soft);
+      background: var(--bg-panel-muted);
+    }
+
+    .accordion-item {
+      border-bottom: 1px solid var(--line-soft);
+    }
+
+    .accordion-header {
+      padding: 14px 18px;
+      background: var(--bg-panel-muted);
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .accordion-header:hover {
+      background: #eff6ff;
+    }
+
+    .accordion-header h2 {
+      margin: 0;
+      font-size: 14px;
+      color: #1e293b;
+    }
+
+    .accordion-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.25s ease;
+    }
+
+    .accordion-item.active .accordion-content {
+      max-height: 2200px;
+    }
+
+    .arrow-icon {
+      width: 10px;
+      height: 10px;
+      border-right: 2px solid var(--text-muted);
+      border-bottom: 2px solid var(--text-muted);
+      transform: rotate(45deg);
+      transition: transform 0.25s ease;
+      flex: none;
+    }
+
+    .accordion-item.active .arrow-icon {
+      transform: rotate(-135deg);
+    }
+
+    .panel-content {
+      padding: 14px 18px 18px;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-bottom: 10px;
+    }
+
+    .input-group label {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    input,
+    select {
+      width: 100%;
+      padding: 7px 8px;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      font-size: 13px;
+      background: #fff;
+      color: var(--text-main);
+      outline: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    input:focus,
+    select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+    }
+
+    .section-block {
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px dashed var(--line-accent);
+    }
+
+    .section-block h3 {
+      margin: 0 0 10px;
+      font-size: 12px;
+      color: var(--primary);
+    }
+
+    .section-name {
+      margin-left: 6px;
+      color: var(--text-main);
+    }
+
+    .section-manager {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .sensor-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    .sensor-table th {
+      padding: 6px 4px;
+      text-align: left;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--line-soft);
+      font-weight: 600;
+    }
+
+    .sensor-table td {
+      padding: 4px 2px;
+      vertical-align: middle;
+    }
+
+    .sensor-table input {
+      padding: 5px 6px;
+    }
+
+    .btn-primary,
+    .btn-add,
+    .btn-delete,
+    .footer-btn,
+    .toolbar-button {
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
+    }
+
+    .btn-primary:hover,
+    .btn-add:hover,
+    .footer-btn:hover,
+    .toolbar-button:hover {
+      transform: translateY(-1px);
+    }
+
+    .btn-primary {
+      padding: 0 12px;
+      background: var(--primary);
+      color: #fff;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .btn-add {
+      width: 100%;
+      margin-top: 8px;
+      padding: 8px 10px;
+      background: #eff6ff;
+      color: var(--primary-strong);
+      font-size: 12px;
+    }
+
+    .btn-delete {
+      background: transparent;
+      color: var(--danger);
+      font-size: 22px;
+      line-height: 1;
+      width: 28px;
+      height: 28px;
+    }
+
+    .footer-btn {
+      padding: 8px 14px;
+      font-size: 12px;
+      box-shadow: none;
+    }
+
+    .footer-btn-primary {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    .footer-btn-secondary {
+      background: #e2e8f0;
+      color: #334155;
+    }
+
+    .main-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      padding: 18px 24px;
+      background: var(--bg-surface);
+      border-bottom: 1px solid #cbd5e1;
+      backdrop-filter: blur(14px);
+    }
+
+    .toolbar h1 {
+      margin: 0 0 6px;
+      font-size: 22px;
+      color: var(--text-main);
+    }
+
+    .toolbar p {
+      margin: 0;
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    .toolbar-button {
+      padding: 10px 14px;
+      background: #fff;
+      color: #1e293b;
+      border: 1px solid #cbd5e1;
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+    }
+
+    .canvas-container {
+      position: relative;
+      flex: 1;
+      min-height: 0;
+      background: var(--bg-canvas);
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      cursor: grab;
+    }
+
+    .tooltip-box {
+      position: absolute;
+      display: none;
+      padding: 10px 12px;
+      background: rgba(15, 23, 42, 0.94);
+      color: #fff;
+      border-radius: 8px;
+      font-size: 12px;
+      line-height: 1.6;
+      pointer-events: none;
+      z-index: 10;
+      box-shadow: 0 12px 24px rgba(15, 23, 42, 0.18);
+    }
+
+    .toast {
+      position: fixed;
+      right: 24px;
+      bottom: 24px;
+      min-width: 220px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: rgba(15, 23, 42, 0.92);
+      color: #fff;
+      box-shadow: var(--shadow-toast);
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      pointer-events: none;
+      z-index: 50;
+    }
+
+    .toast[data-type="error"] {
+      background: rgba(127, 29, 29, 0.94);
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @media (max-width: 960px) {
+      html,
+      body {
+        overflow: auto;
+      }
+
+      .page {
+        min-height: 100%;
+        height: auto;
+        flex-direction: column;
+      }
+
+      .sidebar {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid var(--line-soft);
+        box-shadow: var(--shadow-soft);
+      }
+
+      .main-content {
+        min-height: 60vh;
+      }
+
+      .toolbar {
+        padding: 16px;
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .toolbar-button {
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .row {
+        grid-template-columns: 1fr;
+      }
+
+      .section-manager,
+      .sidebar-footer {
+        flex-direction: column;
+      }
+
+      .footer-btn,
+      .btn-primary {
+        width: 100%;
+      }
+
+      .toolbar h1 {
+        font-size: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <aside id="sidebar" class="sidebar"></aside>
+
+    <main class="main-content">
+      <div class="toolbar">
+        <div>
+          <h1>坝体断面建模</h1>
+          <p>将 Vue 版 structural-settings 重构为原生静态示例，保留断面参数编辑、测压管配置、本地保存与导出能力。</p>
+        </div>
+        <button id="reset-view-button" type="button" class="toolbar-button">重置视图</button>
+      </div>
+
+      <div id="structural-settings-container" class="canvas-container">
+        <canvas id="structural-settings-canvas"></canvas>
+        <div id="structural-settings-tooltip" class="tooltip-box"></div>
+      </div>
+    </main>
+  </div>
+
+  <div id="page-toast" class="toast" data-type="success"></div>
+
+  <script type="module" src="./js/app.js"></script>
+</body>
+</html>
