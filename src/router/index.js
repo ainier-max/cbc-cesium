@@ -95,6 +95,10 @@ const routes = [
   {
     path: "/WaterHead",
     component: () => import("@/MapSenior/WaterHead/index.vue")
+  },
+  {
+    path: "/DynamicDiv",
+    component: () => import("@/MapSenior/DynamicDiv/index.vue")
   }
 ];
 const router = createRouter({

@@ -41,5 +41,12 @@ export const mapSeniorMenuConfigs = [
     url: "/WaterHead",
     type: "VUE",
     img: "./images/menu/addGeode.png"
+  },
+  {
+    title: "动态DIV",
+    key: "DynamicDiv",
+    url: "/DynamicDiv",
+    type: "VUE",
+    img: "./images/menu/addGeode.png"
   }
 ];
