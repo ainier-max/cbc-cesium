@@ -29,7 +29,7 @@ export const mapSeniorMenuConfigs = [
     img: "./images/menu/addGeode.png"
   },
   {
-    title: "Cesium水流",
+    title: "Cesium模拟流体",
     key: "CesiumForFluid",
     url: "/CesiumForFluid",
     type: "VUE",
