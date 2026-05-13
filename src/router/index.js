@@ -93,6 +93,10 @@ const routes = [
     component: () => import("@/MapSenior/CesiumForFluid/index.vue")
   },
   {
+    path: "/CesiumForWaterFluid",
+    component: () => import("@/MapSenior/CesiumForWaterFluid/index.vue")
+  },
+  {
     path: "/WaterHead",
     component: () => import("@/MapSenior/WaterHead/index.vue")
   },

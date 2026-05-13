@@ -36,6 +36,13 @@ export const mapSeniorMenuConfigs = [
     img: "./images/menu/addGeode.png"
   },
   {
+    title: "Cesium 水流",
+    key: "CesiumForWaterFluid",
+    url: "/CesiumForWaterFluid",
+    type: "VUE",
+    img: "./images/menu/addGeode.png"
+  },
+  {
     title: "水头效果",
     key: "WaterHead",
     url: "/WaterHead",
